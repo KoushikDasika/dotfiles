@@ -42,6 +42,7 @@ Plugin 'kchmck/vim-coffee-script'
 Plugin 'nelstrom/vim-textobj-rubyblock'
 Plugin 'yaymukund/vim-rabl'
 Plugin 'tpope/vim-endwise'
+Plugin 'elixir-editors/vim-elixir'
 
 " frameworks
 Plugin 'tpope/vim-rails'
@@ -119,7 +120,8 @@ set formatoptions-=t formatoptions+=croql
 "   "500 : save up to 500 lines for each register
 "   :1000 : up to 1000 lines of command-line history will be remembered
 "   n... : where to save the viminfo files
-set viminfo=%100,'100,/100,h,\"500,:1000,n~/.vim/viminfo
+" set viminfo=%100,'100,/100,h,\"500,:1000,n~/.vim/viminfo
+set viminfo+=n~/.nvim/tmpfiles/viminfo
 
 " ctags: recurse up to home to find tags.
 set tags+=tags;$HOME
@@ -322,3 +324,5 @@ function! ToggleErrorPanel()
 endfunction
 
 nnoremap <leader>er :call ToggleErrorPanel()<CR>
+imap jj <Esc>`^
+autocmd BufWritePre * :%s/\s\+$//e
