@@ -30,3 +30,6 @@ if [[ -s "${ZDOTDIR:-$HOME}/.zshrc-mine" ]]; then
   source "${ZDOTDIR:-$HOME}/.zshrc-mine"
 fi
 # Customize to your needs...
+
+# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+export PATH="$PATH:$HOME/.rvm/bin"
