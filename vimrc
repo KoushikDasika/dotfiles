@@ -57,6 +57,8 @@ Plugin 'mattn/webapi-vim'
 Plugin 'scrooloose/syntastic'
 Plugin 'tpope/vim-fugitive'
 Plugin 'tomtom/quickfixsigns_vim'
+Plugin 'nvim-treesitter/nvim-treesitter'
+Plugin 'yetone/avante.nvim'
 
 " Plugins you want just for yourself go here
 if filereadable(expand("~/.custom.vim-plugins"))
