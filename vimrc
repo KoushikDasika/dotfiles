@@ -57,8 +57,6 @@ Plugin 'mattn/webapi-vim'
 Plugin 'scrooloose/syntastic'
 Plugin 'tpope/vim-fugitive'
 Plugin 'tomtom/quickfixsigns_vim'
-Plugin 'nvim-treesitter/nvim-treesitter'
-Plugin 'yetone/avante.nvim'
 
 " Plugins you want just for yourself go here
 if filereadable(expand("~/.custom.vim-plugins"))
@@ -73,17 +71,14 @@ filetype plugin indent on    " required
 " Basic features
 """""""""""""""""""""""""
 " Display options
-syntax on
+syntax enable
 set nocursorline
 set number
 set list!                       " Display unprintable characters
 set listchars=tab:▸\ ,trail:•,extends:»,precedes:«
-if $TERM =~ '256color'
-  set t_Co=256
-elseif $TERM =~ '^xterm$'
-  set t_Co=256
-endif
-colorscheme molokai
+set background=dark
+let g:solarized_termcolors=256
+colorscheme solarized
 
 " Misc
 set hidden                      " Don't abandon buffers moved to the background
@@ -176,7 +171,7 @@ vnoremap . :normal .<CR>
 vnoremap @ :normal! @
 
 " Toggles
-set pastetoggle=<F1>
+" set pastetoggle=<F1>
 " the nmap is just for quicker powerline feedback
 nmap <silent> <F1>      :set invpaste<CR>
 nmap          <F2>      :setlocal spell!<CR>
