@@ -43,19 +43,6 @@ return {
     },
   },
 
-  -- add pyright to lspconfig
-  {
-    "neovim/nvim-lspconfig",
-    ---@class PluginLspOpts
-    opts = {
-      ---@type lspconfig.options
-      servers = {
-        -- pyright will be automatically installed with mason and loaded with lspconfig
-        pyright = {},
-      },
-    },
-  },
-
   -- add tsserver and setup with typescript.nvim instead of lspconfig
   {
     "neovim/nvim-lspconfig",
@@ -100,6 +87,20 @@ return {
         "flake8",
       },
     },
+  },
+  {
+    "mason-org/mason-lspconfig.nvim",
+    "neovim/nvim-lspconfig",
+  },
+  {
+    "nvim-treesitter/nvim-treesitter",
+    config = function()
+      require("nvim-treesitter.configs").setup({
+        ensure_installed = { "elixir", "eex", "heex" },
+        highlight = { enable = true },
+        indent = { enable = true },
+      })
+    end,
   },
   { "nvim-tree/nvim-web-devicons", opts = {} },
   {
