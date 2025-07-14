@@ -93,22 +93,11 @@ return {
     "neovim/nvim-lspconfig",
   },
   {
-    "nvim-treesitter/nvim-treesitter",
-    config = function()
-      require("nvim-treesitter.configs").setup({
-        ensure_installed = { "elixir", "eex", "heex" },
-        highlight = { enable = true },
-        indent = { enable = true },
-      })
-    end,
-  },
-  { "nvim-tree/nvim-web-devicons", opts = {} },
-  {
     "ibhagwan/fzf-lua",
-    -- optional for icon support
-    dependencies = { "nvim-tree/nvim-web-devicons" },
-    -- or if using mini.icons/mini.nvim
-    -- dependencies = { "echasnovski/mini.icons" },
+    dependencies = { "nvim-tree/nvim-web-devicons", "echasnovski/mini.icons" },
     opts = {},
+    config = function()
+      require("fzf-lua").setup({})
+    end,
   },
 }
