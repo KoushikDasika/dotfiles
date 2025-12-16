@@ -44,18 +44,46 @@ return {
   },
 
   -- add tsserver and setup with typescript.nvim instead of lspconfig
+  --{
+  --  "nvim-treesitter/nvim-treesitter",
+  --  dependencies = {
+  --    "nvim-tree/nvim-web-devicons", -- Add nvim-web-devicons as a dependency
+  --  },
+  --  opts = {
+  --    highlight = {
+  --      enable = true,
+  --      use_icons = {
+  --        glyphs = {
+  --          folder = {
+  --            arrow_closed = "",
+  --            arrow_open = "",
+  --          },
+  --          git = {
+  --            unstaged = "✗",
+  --            staged = "✓",
+  --            unmerged = "",
+  --            renamed = "➜",
+  --            untracked = "★",
+  --            deleted = "",
+  --            ignored = "◌",
+  --          },
+  --        },
+  --      },
+  --    },
+  --  },
+  --},
   {
     "neovim/nvim-lspconfig",
     dependencies = {
       "jose-elias-alvarez/typescript.nvim",
-      init = function()
-        require("lazyvim.util").lsp.on_attach(function(_, buffer)
-          -- stylua: ignore
-          vim.keymap.set( "n", "<leader>co", "TypescriptOrganizeImports", { buffer = buffer, desc = "Organize Imports" })
-          vim.keymap.set("n", "<leader>cR", "TypescriptRenameFile", { desc = "Rename File", buffer = buffer })
-        end)
-      end,
     },
+    config = function()
+      require("snacks.util.lsp").on_attach(function(_, buffer)
+        -- stylua: ignore
+        vim.keymap.set("n", "<leader>co", "TypescriptOrganizeImports", { buffer = buffer, desc = "Organize Imports" })
+        vim.keymap.set("n", "<leader>cR", "TypescriptRenameFile", { desc = "Rename File", buffer = buffer })
+      end)
+    end,
     ---@class PluginLspOpts
     opts = {
       ---@type lspconfig.options
@@ -78,6 +106,9 @@ return {
     },
   },
   {
+    "nvim-tree/nvim-web-devicons", -- Add nvim-web-devicons
+  },
+  {
     "mason-org/mason.nvim",
     opts = {
       ensure_installed = {
@@ -94,7 +125,7 @@ return {
   },
   {
     "ibhagwan/fzf-lua",
-    dependencies = { "nvim-tree/nvim-web-devicons", "echasnovski/mini.icons" },
+    dependencies = { "nvim-tree/nvim-web-devicons", "nvim-mini/mini.icons" },
     opts = {},
     config = function()
       require("fzf-lua").setup({})
