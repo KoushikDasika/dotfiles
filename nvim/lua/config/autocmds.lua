@@ -7,6 +7,12 @@
 -- Or remove existing autocmds by their group name (which is prefixed with `lazyvim_` for the defaults)
 -- e.g. vim.api.nvim_del_augroup_by_name("lazyvim_wrap_spell")
 
+-- Auto-reload files changed on disk
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold" }, {
+  group = vim.api.nvim_create_augroup("auto_reload", { clear = true }),
+  command = "checktime",
+})
+
 -- Force new files to open in new tabs
 vim.api.nvim_create_autocmd("BufAdd", {
   callback = function()

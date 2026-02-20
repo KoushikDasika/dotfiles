@@ -6,6 +6,7 @@ return {
       "nvim-lua/plenary.nvim",
       "nvim-tree/nvim-web-devicons",
       "MunifTanjim/nui.nvim",
+      "folke/snacks.nvim",
     },
     config = function()
       -- Configure Neo-tree to use icons

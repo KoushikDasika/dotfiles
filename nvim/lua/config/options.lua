@@ -12,3 +12,6 @@ vim.opt.tabpagemax = 50 -- Maximum number of tabs
 -- Configure tab behavior
 vim.opt.autowrite = true -- Don't auto-save when switching
 vim.opt.confirm = true -- Ask for confirmation before abandoning unsaved changes
+
+-- Auto-reload files changed outside of Neovim
+vim.opt.autoread = true

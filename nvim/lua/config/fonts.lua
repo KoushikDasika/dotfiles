@@ -3,16 +3,16 @@ require("nvim-web-devicons").setup({
   -- you can specify color or cterm_color instead of specifying both of them
   -- DevIcon will be appended to `name`
   override = {
-    lua = {
-      icon = "",
-      color = "#51a0cf",
-      name = "Lua",
-    },
-    json = {
-      icon = "",
-      color = "#f1e05a",
-      name = "Json",
-    },
+    -- lua = {
+    --   icon = "",
+    --   color = "#51a0cf",
+    --   name = "Lua",
+    -- },
+    -- json = {
+    --   icon = "",
+    --   color = "#f1e05a",
+    --   name = "Json",
+    -- },
     rb = {
       icon = "",
       color = "#701516",
