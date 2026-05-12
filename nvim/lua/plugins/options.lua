@@ -124,4 +124,14 @@ return {
       require("fzf-lua").setup({})
     end,
   },
+  {
+    "stevearc/conform.nvim",
+    opts = {
+      formatters_by_ft = {
+        sh = { "trim_whitespace", "trim_newlines" },
+        bash = { "trim_whitespace", "trim_newlines" },
+        yaml = { "trim_whitespace", "trim_newlines" },
+      },
+    },
+  },
 }
