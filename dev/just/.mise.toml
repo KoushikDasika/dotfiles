@@ -1,0 +1,24 @@
+[tools]
+python = "3.12"
+
+[tasks.setup]
+description = "Create venv and install vLLM with CUDA support"
+run = """
+#!/usr/bin/env bash
+set -euo pipefail
+VENV="$HOME/.config/just/.venv"
+if [ ! -f "$VENV/bin/python" ]; then
+    python3.12 -m venv "$VENV"
+fi
+"$VENV/bin/pip" install --upgrade pip
+"$VENV/bin/pip" install vllm
+
+# Fix flashinfer CUDA lib paths: cu13 ships lib/ not lib64/, linker expects lib64/
+CU13="$VENV/lib/python3.12/site-packages/nvidia/cu13"
+[ -L "$CU13/lib64" ] || ln -sf lib "$CU13/lib64"
+[ -f "$CU13/lib/libcudart.so" ] || ln -sf libcudart.so.13 "$CU13/lib/libcudart.so"
+mkdir -p "$CU13/lib/stubs"
+[ -f "$CU13/lib/stubs/libcuda.so" ] || ln -sf /usr/lib/x86_64-linux-gnu/libcuda.so "$CU13/lib/stubs/libcuda.so"
+
+echo "vLLM installed: $($VENV/bin/python -c 'import vllm; print(vllm.__version__)')"
+"""
