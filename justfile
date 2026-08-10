@@ -31,7 +31,7 @@ packages:
         libncursesw5-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev tk-dev
         libncurses5-dev autoconf m4 libwxgtk3.2-dev
         libgl1-mesa-dev libglu1-mesa-dev libpng-dev libssh-dev
-        unixodbc-dev xsltproc fop
+        unixodbc-dev xsltproc fop fzf
     )
     to_install=()
     for pkg in "${pkgs[@]}"; do
