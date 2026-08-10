@@ -14,6 +14,8 @@ YELLOW='\033[1;33m'
 BOLD='\033[1m'
 RESET='\033[0m'
 
+ARCH="$(dpkg --print-architecture)"
+
 log_section() { echo -e "\n${BOLD}=== $1 ===${RESET}"; }
 log_info()    { echo -e "  ${YELLOW}→${RESET} $1"; }
 log_ok()      { echo -e "  ${GREEN}✓${RESET} $1"; }
@@ -111,12 +113,44 @@ install_snap_packages() {
         log_ok "chromium already installed"
     fi
 
-    if ! is_snap_installed slack; then
+    if [[ "$ARCH" == "arm64" ]]; then
+        log_warn "Slack snap has no arm64 build — skipping (use web app or download from slack.com)"
+    elif ! is_snap_installed slack; then
         sudo snap install slack
         log_ok "slack installed"
     else
         log_ok "slack already installed"
     fi
+}
+
+# ============================================================
+# 2.5 FEX-Emu (x86/x86-64 emulation on ARM64)
+# ============================================================
+
+install_fex_emu() {
+    log_section "FEX-Emu (x86/x86-64 emulation)"
+
+    [[ "$ARCH" != "arm64" ]] && { log_info "Not arm64 — skipping FEX-Emu"; return; }
+
+    if is_pkg_installed fex-emu-armv8.0 || is_pkg_installed fex-emu-armv8.2 || \
+       is_pkg_installed fex-emu-armv8.4; then
+        log_ok "FEX-Emu already installed"
+        return
+    fi
+
+    log_info "Adding FEX-Emu PPA..."
+    if ! apt-cache show fex-emu-armv8.2 &>/dev/null 2>&1; then
+        sudo add-apt-repository -y ppa:fex-emu/fex
+        sudo apt-get update -qq
+    fi
+
+    # Pick variant from CPU features; flagm = ARMv8.4, asimdhp = ARMv8.2
+    local variant="armv8.0"
+    grep -q 'flagm'   /proc/cpuinfo 2>/dev/null && variant="armv8.4" || true
+    grep -q 'asimdhp' /proc/cpuinfo 2>/dev/null && [[ "$variant" == "armv8.0" ]] && variant="armv8.2" || true
+
+    sudo apt-get install -y -qq "fex-emu-${variant}" fex-emu-binfmt64
+    log_ok "FEX-Emu installed (${variant} + binfmt64)"
 }
 
 # ============================================================
@@ -214,14 +248,51 @@ rust = "1.97.1"
 stern = "1.32.0"
 uv = "latest"
 tilt = "0.37.0"
-"ubi:rtk-ai/rtk" = "latest"
-"ubi:gastownhall/beads" = "1.1.0"
+"github:rtk-ai/rtk" = "latest"
+"github:gastownhall/beads" = "1.1.0"
 yarn = "1.22.4"
 TOML
 
     log_info "Installing mise tools (this may take a while)..."
     mise install --yes
     log_ok "Mise tools installed"
+}
+
+# ============================================================
+# 7.5 Zoom (x86-64 via FEX on ARM64)
+# ============================================================
+
+install_zoom() {
+    log_section "Zoom"
+
+    local deb="$HOME/Downloads/zoom_amd64.deb"
+
+    if is_pkg_installed zoom; then
+        log_ok "Zoom already installed ($(dpkg -s zoom | grep Version | awk '{print $2}'))"
+        # Ensure it stays held so apt never removes it
+        sudo apt-mark hold zoom &>/dev/null || true
+    elif [[ -f "$deb" ]]; then
+        log_info "Installing Zoom from $deb..."
+        sudo dpkg -i --force-all "$deb"
+        sudo apt-mark hold zoom
+        log_ok "Zoom installed and held (apt will not remove it)"
+    else
+        log_warn "Zoom deb not found at $deb — download zoom_amd64.deb from zoom.us and re-run"
+        return 0
+    fi
+
+    # Ensure the LD_LIBRARY_PATH wrapper exists in ~/.local/bin
+    if [[ ! -x "$HOME/.local/bin/zoom" ]] || ! grep -q 'ZoomLauncher' "$HOME/.local/bin/zoom" 2>/dev/null; then
+        cat > "$HOME/.local/bin/zoom" << 'WRAPPER'
+#!/bin/bash
+export LD_LIBRARY_PATH="/opt/zoom/Qt/lib:/opt/zoom${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+exec /opt/zoom/ZoomLauncher "$@"
+WRAPPER
+        chmod +x "$HOME/.local/bin/zoom"
+        log_ok "Zoom launcher wrapper created at ~/.local/bin/zoom"
+    else
+        log_ok "Zoom launcher wrapper already present"
+    fi
 }
 
 # ============================================================
@@ -237,6 +308,10 @@ install_desktop_apps() {
 }
 
 install_chrome() {
+    if [[ "$ARCH" == "arm64" ]]; then
+        log_warn "Google Chrome has no arm64 deb — skipping (Chromium snap is already installed)"
+        return
+    fi
     if is_pkg_installed google-chrome-stable; then
         log_ok "Google Chrome already installed"
         return
@@ -283,6 +358,10 @@ EOF
 }
 
 install_beekeeper() {
+    if [[ "$ARCH" == "arm64" ]]; then
+        log_warn "Beekeeper Studio has no arm64 deb — skipping (download manually from beekeeperstudio.io)"
+        return
+    fi
     if is_pkg_installed beekeeper-studio; then
         log_ok "Beekeeper Studio already installed"
         return
@@ -353,7 +432,6 @@ EOF
         log_ok "User already in docker group"
     fi
 
-    log_warn "Docker Desktop: download manually from https://docs.docker.com/desktop/install/linux/"
 }
 
 # ============================================================
@@ -382,27 +460,58 @@ setup_gnome() {
     log_ok "GNOME tools installed"
 
     install_nerd_fonts
+    install_dash_to_dock
     restore_gnome_settings
 }
 
 install_nerd_fonts() {
     local fonts_dir="$HOME/.local/share/fonts"
-    if ls "$fonts_dir"/UbuntuNerdFont*.ttf &>/dev/null 2>&1; then
-        log_ok "Ubuntu Nerd Fonts already installed"
+    if ls "$fonts_dir"/UbuntuMonoNerdFont*.ttf &>/dev/null 2>&1; then
+        log_ok "UbuntuMono Nerd Fonts already installed"
         return
     fi
-    log_info "Installing Ubuntu Nerd Fonts..."
+    log_info "Installing UbuntuMono Nerd Fonts..."
     local tmp_dir
     tmp_dir="$(mktemp -d)"
-    local version="3.4.0"
-    curl -fsSL "https://github.com/ryanoasis/nerd-fonts/releases/download/v${version}/UbuntuNerdFont.tar.xz" \
-        -o "$tmp_dir/UbuntuNerdFont.tar.xz"
+    local version="3.5.0"
+    curl -fsSL "https://github.com/ryanoasis/nerd-fonts/releases/download/v${version}/UbuntuMono.tar.xz" \
+        -o "$tmp_dir/UbuntuMono.tar.xz"
     mkdir -p "$fonts_dir"
-    tar -xf "$tmp_dir/UbuntuNerdFont.tar.xz" -C "$fonts_dir" "*.ttf" 2>/dev/null || \
-        tar -xf "$tmp_dir/UbuntuNerdFont.tar.xz" -C "$fonts_dir"
+    tar -xf "$tmp_dir/UbuntuMono.tar.xz" -C "$fonts_dir"
     rm -rf "$tmp_dir"
     fc-cache -fv > /dev/null 2>&1
-    log_ok "Ubuntu Nerd Fonts installed"
+    log_ok "UbuntuMono Nerd Fonts installed"
+}
+
+install_dash_to_dock() {
+    local ext_id="dash-to-dock@micxgx.gmail.com"
+    local ext_dir="$HOME/.local/share/gnome-shell/extensions/$ext_id"
+    local repo_dir="$HOME/git/dash-to-dock"
+
+    if [[ -d "$ext_dir" ]] && gnome-extensions list --user 2>/dev/null | grep -q "$ext_id"; then
+        log_ok "Dash to Dock already installed and registered"
+        gnome-extensions enable "$ext_id" 2>/dev/null || true
+        return
+    fi
+
+    local missing_deps=()
+    is_cmd sassc || missing_deps+=(sassc)
+    is_pkg_installed libglib2.0-bin || missing_deps+=(libglib2.0-bin)
+    if [[ ${#missing_deps[@]} -gt 0 ]]; then
+        log_info "Installing build deps for Dash to Dock: ${missing_deps[*]}"
+        sudo apt-get install -y -qq "${missing_deps[@]}"
+    fi
+
+    log_info "Installing Dash to Dock..."
+    mkdir -p "$HOME/git"
+    if [[ ! -d "$repo_dir" ]]; then
+        git clone https://github.com/micheleg/dash-to-dock.git "$repo_dir"
+    fi
+
+    make -C "$repo_dir" install
+    gnome-extensions enable "$ext_id" 2>/dev/null || \
+        log_warn "Could not enable Dash to Dock now — log out/in and enable it via Extensions app"
+    log_ok "Dash to Dock installed ($ext_id)"
 }
 
 restore_gnome_settings() {
@@ -447,7 +556,46 @@ build_llama_cpp() {
 }
 
 # ============================================================
-# 12. Hugging Face CLI
+# 12. box64 (x86-64 emulation)
+# ============================================================
+
+build_box64() {
+    log_section "box64"
+
+    [[ "$ARCH" != "arm64" ]] && { log_info "Not arm64 — skipping box64"; return; }
+
+    if is_cmd box64; then
+        log_ok "box64 already installed ($(box64 --version 2>&1 | head -1))"
+        return
+    fi
+
+    local missing_deps=()
+    is_pkg_installed cmake      || missing_deps+=(cmake)
+    is_pkg_installed python3    || missing_deps+=(python3)
+    if [[ ${#missing_deps[@]} -gt 0 ]]; then
+        log_info "Installing build deps for box64: ${missing_deps[*]}"
+        sudo apt-get install -y -qq "${missing_deps[@]}"
+    fi
+
+    local box64_dir="$HOME/git/box64"
+    log_info "Building box64..."
+    if [[ ! -d "$box64_dir" ]]; then
+        git clone https://github.com/ptitSeb/box64.git "$box64_dir"
+    else
+        git -C "$box64_dir" pull --ff-only || true
+    fi
+
+    cmake -B "$box64_dir/build" -S "$box64_dir" \
+        -D ARM_DYNAREC=ON \
+        -D CMAKE_BUILD_TYPE=RelWithDebInfo
+    cmake --build "$box64_dir/build" -j "$(nproc)"
+    sudo cmake --install "$box64_dir/build"
+    sudo systemctl restart systemd-binfmt || true
+    log_ok "box64 installed"
+}
+
+# ============================================================
+# 14. Hugging Face CLI
 # ============================================================
 
 install_hf_cli() {
@@ -472,7 +620,7 @@ install_hf_cli() {
 }
 
 # ============================================================
-# 13. Shell Config
+# 15. Shell Config
 # ============================================================
 
 setup_shell() {
@@ -486,7 +634,7 @@ setup_shell() {
 }
 
 # ============================================================
-# 14. Git Config Verification
+# 16. Git Config Verification
 # ============================================================
 
 verify_git_config() {
@@ -527,6 +675,8 @@ main() {
 
     install_system_packages
     install_snap_packages
+    install_fex_emu
+    install_zoom
     setup_dotfiles_clone
     setup_symlinks
     setup_tmux
@@ -536,6 +686,7 @@ main() {
     install_docker
     setup_gnome
     build_llama_cpp
+    build_box64
     install_hf_cli
     setup_shell
     verify_git_config
