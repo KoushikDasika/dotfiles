@@ -259,6 +259,43 @@ TOML
 }
 
 # ============================================================
+# 7.5 Zoom (x86-64 via FEX on ARM64)
+# ============================================================
+
+install_zoom() {
+    log_section "Zoom"
+
+    local deb="$HOME/Downloads/zoom_amd64.deb"
+
+    if is_pkg_installed zoom; then
+        log_ok "Zoom already installed ($(dpkg -s zoom | grep Version | awk '{print $2}'))"
+        # Ensure it stays held so apt never removes it
+        sudo apt-mark hold zoom &>/dev/null || true
+    elif [[ -f "$deb" ]]; then
+        log_info "Installing Zoom from $deb..."
+        sudo dpkg -i --force-all "$deb"
+        sudo apt-mark hold zoom
+        log_ok "Zoom installed and held (apt will not remove it)"
+    else
+        log_warn "Zoom deb not found at $deb — download zoom_amd64.deb from zoom.us and re-run"
+        return 0
+    fi
+
+    # Ensure the LD_LIBRARY_PATH wrapper exists in ~/.local/bin
+    if [[ ! -x "$HOME/.local/bin/zoom" ]] || ! grep -q 'ZoomLauncher' "$HOME/.local/bin/zoom" 2>/dev/null; then
+        cat > "$HOME/.local/bin/zoom" << 'WRAPPER'
+#!/bin/bash
+export LD_LIBRARY_PATH="/opt/zoom/Qt/lib:/opt/zoom${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+exec /opt/zoom/ZoomLauncher "$@"
+WRAPPER
+        chmod +x "$HOME/.local/bin/zoom"
+        log_ok "Zoom launcher wrapper created at ~/.local/bin/zoom"
+    else
+        log_ok "Zoom launcher wrapper already present"
+    fi
+}
+
+# ============================================================
 # 8. Desktop Apps (apt repos)
 # ============================================================
 
@@ -447,14 +484,22 @@ install_nerd_fonts() {
 }
 
 install_dash_to_dock() {
-    local ext_id="dash-to-dock@micheleg.gmail.com"
+    local ext_id="dash-to-dock@micxgx.gmail.com"
     local ext_dir="$HOME/.local/share/gnome-shell/extensions/$ext_id"
     local repo_dir="$HOME/git/dash-to-dock"
 
-    if [[ -d "$ext_dir" ]]; then
-        log_ok "Dash to Dock already installed"
+    if [[ -d "$ext_dir" ]] && gnome-extensions list --user 2>/dev/null | grep -q "$ext_id"; then
+        log_ok "Dash to Dock already installed and registered"
         gnome-extensions enable "$ext_id" 2>/dev/null || true
         return
+    fi
+
+    local missing_deps=()
+    is_cmd sassc || missing_deps+=(sassc)
+    is_pkg_installed libglib2.0-bin || missing_deps+=(libglib2.0-bin)
+    if [[ ${#missing_deps[@]} -gt 0 ]]; then
+        log_info "Installing build deps for Dash to Dock: ${missing_deps[*]}"
+        sudo apt-get install -y -qq "${missing_deps[@]}"
     fi
 
     log_info "Installing Dash to Dock..."
@@ -463,12 +508,7 @@ install_dash_to_dock() {
         git clone https://github.com/micheleg/dash-to-dock.git "$repo_dir"
     fi
 
-    mkdir -p "$(dirname "$ext_dir")"
-    make -C "$repo_dir" install 2>/dev/null || (
-        mkdir -p "$ext_dir"
-        cp -r "$repo_dir"/. "$ext_dir/"
-    )
-
+    make -C "$repo_dir" install
     gnome-extensions enable "$ext_id" 2>/dev/null || \
         log_warn "Could not enable Dash to Dock now — log out/in and enable it via Extensions app"
     log_ok "Dash to Dock installed ($ext_id)"
@@ -597,6 +637,7 @@ main() {
     install_system_packages
     install_snap_packages
     install_fex_emu
+    install_zoom
     setup_dotfiles_clone
     setup_symlinks
     setup_tmux
