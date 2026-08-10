@@ -556,7 +556,46 @@ build_llama_cpp() {
 }
 
 # ============================================================
-# 12. Hugging Face CLI
+# 12. box64 (x86-64 emulation)
+# ============================================================
+
+build_box64() {
+    log_section "box64"
+
+    [[ "$ARCH" != "arm64" ]] && { log_info "Not arm64 — skipping box64"; return; }
+
+    if is_cmd box64; then
+        log_ok "box64 already installed ($(box64 --version 2>&1 | head -1))"
+        return
+    fi
+
+    local missing_deps=()
+    is_pkg_installed cmake      || missing_deps+=(cmake)
+    is_pkg_installed python3    || missing_deps+=(python3)
+    if [[ ${#missing_deps[@]} -gt 0 ]]; then
+        log_info "Installing build deps for box64: ${missing_deps[*]}"
+        sudo apt-get install -y -qq "${missing_deps[@]}"
+    fi
+
+    local box64_dir="$HOME/git/box64"
+    log_info "Building box64..."
+    if [[ ! -d "$box64_dir" ]]; then
+        git clone https://github.com/ptitSeb/box64.git "$box64_dir"
+    else
+        git -C "$box64_dir" pull --ff-only || true
+    fi
+
+    cmake -B "$box64_dir/build" -S "$box64_dir" \
+        -D ARM_DYNAREC=ON \
+        -D CMAKE_BUILD_TYPE=RelWithDebInfo
+    cmake --build "$box64_dir/build" -j "$(nproc)"
+    sudo cmake --install "$box64_dir/build"
+    sudo systemctl restart systemd-binfmt || true
+    log_ok "box64 installed"
+}
+
+# ============================================================
+# 14. Hugging Face CLI
 # ============================================================
 
 install_hf_cli() {
@@ -581,7 +620,7 @@ install_hf_cli() {
 }
 
 # ============================================================
-# 13. Shell Config
+# 15. Shell Config
 # ============================================================
 
 setup_shell() {
@@ -595,7 +634,7 @@ setup_shell() {
 }
 
 # ============================================================
-# 14. Git Config Verification
+# 16. Git Config Verification
 # ============================================================
 
 verify_git_config() {
@@ -647,6 +686,7 @@ main() {
     install_docker
     setup_gnome
     build_llama_cpp
+    build_box64
     install_hf_cli
     setup_shell
     verify_git_config
