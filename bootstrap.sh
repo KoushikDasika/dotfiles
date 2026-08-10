@@ -14,6 +14,8 @@ YELLOW='\033[1;33m'
 BOLD='\033[1m'
 RESET='\033[0m'
 
+ARCH="$(dpkg --print-architecture)"
+
 log_section() { echo -e "\n${BOLD}=== $1 ===${RESET}"; }
 log_info()    { echo -e "  ${YELLOW}→${RESET} $1"; }
 log_ok()      { echo -e "  ${GREEN}✓${RESET} $1"; }
@@ -111,12 +113,44 @@ install_snap_packages() {
         log_ok "chromium already installed"
     fi
 
-    if ! is_snap_installed slack; then
+    if [[ "$ARCH" == "arm64" ]]; then
+        log_warn "Slack snap has no arm64 build — skipping (use web app or download from slack.com)"
+    elif ! is_snap_installed slack; then
         sudo snap install slack
         log_ok "slack installed"
     else
         log_ok "slack already installed"
     fi
+}
+
+# ============================================================
+# 2.5 FEX-Emu (x86/x86-64 emulation on ARM64)
+# ============================================================
+
+install_fex_emu() {
+    log_section "FEX-Emu (x86/x86-64 emulation)"
+
+    [[ "$ARCH" != "arm64" ]] && { log_info "Not arm64 — skipping FEX-Emu"; return; }
+
+    if is_pkg_installed fex-emu-armv8.0 || is_pkg_installed fex-emu-armv8.2 || \
+       is_pkg_installed fex-emu-armv8.4; then
+        log_ok "FEX-Emu already installed"
+        return
+    fi
+
+    log_info "Adding FEX-Emu PPA..."
+    if ! apt-cache show fex-emu-armv8.2 &>/dev/null 2>&1; then
+        sudo add-apt-repository -y ppa:fex-emu/fex
+        sudo apt-get update -qq
+    fi
+
+    # Pick variant from CPU features; flagm = ARMv8.4, asimdhp = ARMv8.2
+    local variant="armv8.0"
+    grep -q 'flagm'   /proc/cpuinfo 2>/dev/null && variant="armv8.4" || true
+    grep -q 'asimdhp' /proc/cpuinfo 2>/dev/null && [[ "$variant" == "armv8.0" ]] && variant="armv8.2" || true
+
+    sudo apt-get install -y -qq "fex-emu-${variant}" fex-emu-binfmt64
+    log_ok "FEX-Emu installed (${variant} + binfmt64)"
 }
 
 # ============================================================
@@ -237,6 +271,10 @@ install_desktop_apps() {
 }
 
 install_chrome() {
+    if [[ "$ARCH" == "arm64" ]]; then
+        log_warn "Google Chrome has no arm64 deb — skipping (Chromium snap is already installed)"
+        return
+    fi
     if is_pkg_installed google-chrome-stable; then
         log_ok "Google Chrome already installed"
         return
@@ -283,6 +321,10 @@ EOF
 }
 
 install_beekeeper() {
+    if [[ "$ARCH" == "arm64" ]]; then
+        log_warn "Beekeeper Studio has no arm64 deb — skipping (download manually from beekeeperstudio.io)"
+        return
+    fi
     if is_pkg_installed beekeeper-studio; then
         log_ok "Beekeeper Studio already installed"
         return
@@ -527,6 +569,7 @@ main() {
 
     install_system_packages
     install_snap_packages
+    install_fex_emu
     setup_dotfiles_clone
     setup_symlinks
     setup_tmux
