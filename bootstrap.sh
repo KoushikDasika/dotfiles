@@ -248,8 +248,8 @@ rust = "1.97.1"
 stern = "1.32.0"
 uv = "latest"
 tilt = "0.37.0"
-"ubi:rtk-ai/rtk" = "latest"
-"ubi:gastownhall/beads" = "1.1.0"
+"github:rtk-ai/rtk" = "latest"
+"github:gastownhall/beads" = "1.1.0"
 yarn = "1.22.4"
 TOML
 
@@ -395,7 +395,6 @@ EOF
         log_ok "User already in docker group"
     fi
 
-    log_warn "Docker Desktop: download manually from https://docs.docker.com/desktop/install/linux/"
 }
 
 # ============================================================
@@ -429,19 +428,18 @@ setup_gnome() {
 
 install_nerd_fonts() {
     local fonts_dir="$HOME/.local/share/fonts"
-    if ls "$fonts_dir"/UbuntuNerdFont*.ttf &>/dev/null 2>&1; then
+    if ls "$fonts_dir"/Ubuntu*Nerd*.ttf &>/dev/null 2>&1; then
         log_ok "Ubuntu Nerd Fonts already installed"
         return
     fi
     log_info "Installing Ubuntu Nerd Fonts..."
     local tmp_dir
     tmp_dir="$(mktemp -d)"
-    local version="3.4.0"
-    curl -fsSL "https://github.com/ryanoasis/nerd-fonts/releases/download/v${version}/UbuntuNerdFont.tar.xz" \
-        -o "$tmp_dir/UbuntuNerdFont.tar.xz"
+    local version="3.5.0"
+    curl -fsSL "https://github.com/ryanoasis/nerd-fonts/releases/download/v${version}/Ubuntu.tar.xz" \
+        -o "$tmp_dir/Ubuntu.tar.xz"
     mkdir -p "$fonts_dir"
-    tar -xf "$tmp_dir/UbuntuNerdFont.tar.xz" -C "$fonts_dir" "*.ttf" 2>/dev/null || \
-        tar -xf "$tmp_dir/UbuntuNerdFont.tar.xz" -C "$fonts_dir"
+    tar -xf "$tmp_dir/Ubuntu.tar.xz" -C "$fonts_dir"
     rm -rf "$tmp_dir"
     fc-cache -fv > /dev/null 2>&1
     log_ok "Ubuntu Nerd Fonts installed"
