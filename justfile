@@ -92,11 +92,11 @@ zoom:
     fi
     if [[ ! -x "$HOME/.local/bin/zoom" ]] || ! grep -q 'ZoomLauncher' "$HOME/.local/bin/zoom" 2>/dev/null; then
         mkdir -p "$HOME/.local/bin"
-        cat > "$HOME/.local/bin/zoom" << 'WRAPPER'
-#!/bin/bash
-export LD_LIBRARY_PATH="/opt/zoom/Qt/lib:/opt/zoom${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-exec /opt/zoom/ZoomLauncher "$@"
-WRAPPER
+        printf '%s\n' \
+            '#!/bin/bash' \
+            'export LD_LIBRARY_PATH="/opt/zoom/Qt/lib:/opt/zoom${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"' \
+            'exec /opt/zoom/ZoomLauncher "$@"' \
+            > "$HOME/.local/bin/zoom"
         chmod +x "$HOME/.local/bin/zoom"
     fi
     echo "zoom wrapper ok"
@@ -215,15 +215,15 @@ desktop:
             curl -fsSL https://dl.google.com/linux/linux_signing_key.pub \
                 | sudo gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg
         fi
-        sudo tee /etc/apt/sources.list.d/google-chrome.sources > /dev/null << 'EOF'
-X-Repolib-Name: Google Chrome
-Types: deb
-URIs: https://dl.google.com/linux/chrome-stable/deb/
-Suites: stable
-Components: main
-Architectures: amd64
-Signed-By: /usr/share/keyrings/google-chrome.gpg
-EOF
+        printf '%s\n' \
+            'X-Repolib-Name: Google Chrome' \
+            'Types: deb' \
+            'URIs: https://dl.google.com/linux/chrome-stable/deb/' \
+            'Suites: stable' \
+            'Components: main' \
+            'Architectures: amd64' \
+            'Signed-By: /usr/share/keyrings/google-chrome.gpg' \
+            | sudo tee /etc/apt/sources.list.d/google-chrome.sources > /dev/null
         sudo apt-get update -qq && sudo apt-get install -y -qq google-chrome-stable
     fi
 
@@ -234,12 +234,12 @@ EOF
             curl -fsSL https://download.sublimetext.com/sublimehq-pub.gpg \
                 | sudo tee /etc/apt/keyrings/sublimehq-pub.asc > /dev/null
         fi
-        sudo tee /etc/apt/sources.list.d/sublime-text.sources > /dev/null << 'EOF'
-Types: deb
-URIs: https://download.sublimetext.com/
-Suites: apt/stable/
-Signed-By: /etc/apt/keyrings/sublimehq-pub.asc
-EOF
+        printf '%s\n' \
+            'Types: deb' \
+            'URIs: https://download.sublimetext.com/' \
+            'Suites: apt/stable/' \
+            'Signed-By: /etc/apt/keyrings/sublimehq-pub.asc' \
+            | sudo tee /etc/apt/sources.list.d/sublime-text.sources > /dev/null
         sudo apt-get update -qq && sudo apt-get install -y -qq sublime-text
     fi
 
@@ -249,14 +249,14 @@ EOF
             curl -fsSL https://deb.beekeeperstudio.io/beekeeper.key \
                 | sudo gpg --dearmor -o /usr/share/keyrings/beekeeper.gpg
         fi
-        sudo tee /etc/apt/sources.list.d/beekeeper-studio.sources > /dev/null << 'EOF'
-Types: deb
-URIs: https://deb.beekeeperstudio.io
-Suites: stable
-Components: main
-Architectures: amd64
-Signed-By: /usr/share/keyrings/beekeeper.gpg
-EOF
+        printf '%s\n' \
+            'Types: deb' \
+            'URIs: https://deb.beekeeperstudio.io' \
+            'Suites: stable' \
+            'Components: main' \
+            'Architectures: amd64' \
+            'Signed-By: /usr/share/keyrings/beekeeper.gpg' \
+            | sudo tee /etc/apt/sources.list.d/beekeeper-studio.sources > /dev/null
         sudo apt-get update -qq && sudo apt-get install -y -qq beekeeper-studio
     fi
 
@@ -279,13 +279,13 @@ docker:
                --output /dev/null --silent --head --fail; then
             codename="noble"
         fi
-        sudo tee /etc/apt/sources.list.d/docker.sources > /dev/null << EOF
-Types: deb
-URIs: https://download.docker.com/linux/ubuntu
-Suites: ${codename}
-Components: stable
-Signed-By: /etc/apt/keyrings/docker.asc
-EOF
+        printf '%s\n' \
+            'Types: deb' \
+            'URIs: https://download.docker.com/linux/ubuntu' \
+            "Suites: ${codename}" \
+            'Components: stable' \
+            'Signed-By: /etc/apt/keyrings/docker.asc' \
+            | sudo tee /etc/apt/sources.list.d/docker.sources > /dev/null
         sudo apt-get update -qq
         sudo apt-get install -y -qq docker-ce docker-ce-cli containerd.io \
             docker-buildx-plugin docker-compose-plugin
