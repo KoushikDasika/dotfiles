@@ -1,132 +1,133 @@
-# Crowdtap dotfile config
+# dotfiles
 
-## Why a common dotfile config?
+Personal machine configuration for Ubuntu (x86-64 and ARM64).
 
-* To be on the same page
-* Unleash TMUX and VIM productivity power
+## Structure
 
-![Hamburger](http://www.passportmagazine.com/blog/uploads/DeathbyHamburger.jpg)
+```
+dotfiles/
+├── ai/                        # AI coding tools
+│   ├── claude-code/           # Claude Code global config + skills
+│   ├── opencode/              # opencode config, agents, plugins
+│   ├── beads/                 # beads (bd) task tracker config
+│   ├── bdui/                  # beads-ui (npm, no config files)
+│   └── mempalace/             # mempalace memory config
+├── dev/                       # Development environment
+│   ├── nvim/                  # Neovim config (LazyVim)
+│   ├── tmux.conf              # tmux config
+│   ├── mise/                  # mise tool versions
+│   └── just/                  # global justfile + vLLM mise task
+├── justfile                   # Setup recipes (replaces bootstrap.sh)
+├── bootstrap.sh               # Prerequisite installer (mise + just), then calls justfile
+└── gnome-settings.dconf       # GNOME settings export
+```
 
-## What's inside?
-* A solid VIM config
-* A solid TMUX config
-* Extra dotfiles (ackrc, irbrc, gemrc)
+## Bootstrap
 
-See below for further details
+Fresh machine:
 
-## Install
-1. clone this repository
-2. cd into the repository
-3. `./setup.sh`
+```bash
+git clone git@github.com:KoushikDasika/dotfiles.git ~/git/dotfiles
+cd ~/git/dotfiles
+./bootstrap.sh
+```
 
-## TMUX config
+`bootstrap.sh` installs `mise` and `just`, then runs `just setup`. All setup logic lives in the `justfile`.
 
-iTerm Users: You need to set `Option / Alt` keys as a meta key in your terminal application.
+## Individual steps
 
-- iTerm:
-    Preferences > Profiles > Default > Keys > Left option key acts as `+ Esc`
-    Preferences > Profiles > Default > Keys > Right option key acts as `+ Esc`
+```bash
+just --list          # show all available recipes
+just symlinks        # set up all symlinks only
+just mise-tools      # install/update mise tools
+just shell           # configure .bashrc
+just bash-completion # set up completions for mise, just, bd
+just gnome           # GNOME fonts + dash-to-dock + dconf settings
+just llama           # build llama.cpp
+just docker          # install Docker CE
+```
 
-Key Bindings
--------------
+## Symlinks
 
-The following key bindings do not require you to send the prefix keystroke:
+`just symlinks` creates these links (existing files are backed up):
 
-| Command                     | Result                                   |
-| -------------               | -------------                            |
-| **Prefix**                  |                                          |
-| Ctrl + e                    | Remapped to the Alt button in our config |
-| **Initiation**              |                                          |
-| tmux                        | Starts tmux                              |
-| tmux attach                 | Re-attach to last open session           |
-| tmux attach -t session_name | Attach to specific session               |
-| **Termination**             |                                          |
-| exit                        | Kill the current shell                   |
-| Alt + d                     | Detach                                   |
-| **Panes**                   |                                          |
-| Alt + -                     | New split vertically                     |
-| Alt + &#124;                | New split horizontally                   |
-| **Pane Movement**           |                                          |
-| Alt + h                     | Go to the left pane                      |
-| Alt + j                     | Go to the bottom pane                    |
-| Alt + k                     | Go to the top pane                       |
-| Alt + l                     | Go to the right pane                     |
-| Alt + Arrow                 | Resize pane                              |
-| **Tabs**                    |                                          |
-| Alt + c                     | New tab                                  |
-| Alt + n                     | Next tab                                 |
-| Alt + p                     | Previous tab                             |
-| **Sessions**                |                                          |
-| Alt + 8                     | Choose a session to attach               |
-| Alt + 9                     | Cycle left through sessions              |
-| Alt + 0                     | Cycle right through sessions             |
-| tmux ls                     | List tmux sessions                       |
-| **Copy mode**               |                                          |
-| Alt + PageUp                | Copy mode and page up                    |
-| Alt + u                     | Copy mode                                |
-| Space                       | Select text                              |
-| Return                      | Copy text and quit                       |
-| Alt + i                     | Paste                                    |
-| q                           | Quit copy mode                           |
+| Dotfiles path | Target |
+|---|---|
+| `dev/nvim` | `~/.config/nvim` |
+| `dev/tmux.conf` | `~/.tmux.conf` |
+| `dev/mise/config.toml` | `~/.config/mise/config.toml` |
+| `dev/just/justfile` | `~/.config/just/justfile` |
+| `dev/just/.mise.toml` | `~/.config/just/.mise.toml` |
+| `ai/claude-code/CLAUDE.md` | `~/.claude/CLAUDE.md` |
+| `ai/claude-code/RTK.md` | `~/.claude/RTK.md` |
+| `ai/claude-code/settings.json` | `~/.claude/settings.json` |
+| `ai/claude-code/statusline.mjs` | `~/.claude/statusline.mjs` |
+| `ai/claude-code/track-active-context.mjs` | `~/.claude/track-active-context.mjs` |
+| `ai/claude-code/skills` | `~/.claude/skills` |
+| `ai/opencode/opencode.json` | `~/.config/opencode/opencode.json` |
+| `ai/opencode/opencode-mem.jsonc` | `~/.config/opencode/opencode-mem.jsonc` |
+| `ai/opencode/AGENTS.md` | `~/.config/opencode/AGENTS.md` |
+| `ai/opencode/caveman.md` | `~/.config/opencode/caveman.md` |
+| `ai/opencode/RTK.md` | `~/.config/opencode/RTK.md` |
+| `ai/opencode/agents` | `~/.config/opencode/agents` |
+| `ai/opencode/plugins` | `~/.config/opencode/plugins` |
+| `ai/beads/config.yaml` | `~/.beads/config.yaml` |
+| `ai/mempalace/config.json` | `~/.mempalace/config.json` |
 
-## VIM config
+## Mise tools
 
-### Plugins
+Defined in `dev/mise/config.toml`. Highlights:
 
-* [Molokai](https://github.com/nviennot/molokai)      - This color scheme makes it pretty and gives you kisses { :lipstick: => :kiss: }
-* [NERDTree](https://github.com/scrooloose/nerdtree)  - Filesystem explorer - use `^g` to toggle it
-* [Rails.vim](https://github.com/tpope/vim-rails)     - Navigate Rails project easily - `:help rails-navigation`
-* [Fugitive](https://github.com/tpope/vim-fugitive)   - Deep git integration :octocat:
-* [Tabular](https://github.com/godlygeek/tabular.git) - Alignment plugin (e.g. =>, |, :, ...)
-* [NerdCommenter](https://github.com/scrooloose/nerdcommenter.git) - Comment efficiently single or multiple lines
-* [QuickFixSigns](https://github.com/tomtom/quickfixsigns_vim.git) - Is responsible for these usefull +/- signs on the left side (live diff with git index)
-* [Syntastic](https://github.com/scrooloose/syntastic.git) - Syntax checker, yells when you write mistakes :horse:
-* [Endwise](https://github.com/tpope/vim-endwise.git) - Adds necessary end to functions and statements in ruby
-* [Vim-ruby](https://github.com/vim-ruby/vim-ruby.git) - syntax highlighting for ruby files
-* [Vim-coffee-script](https://github.com/kchmck/vim-coffee-script.git) - syntax highlighting for coffee script files
-* [MiniBufExplorer](https://github.com/fholgado/minibufexpl.vim.git) - interactive buffer list on demand bound on `<leader>l` (also binds ^h,^j,^k,^l to move around windows)
-* [Scss-syntax](https://github.com/cakebaker/scss-syntax.vim) - Adds SASS syntax highlighting
-* [Less-css](https://github.com/groenewege/vim-less.git) - colors for LESS CSS files
-* [Supertab](https://github.com/tsaleh/vim-supertab.git) - Tab completion
-* [vim-cucumber-align-pipes](https://github.com/quentindecock/vim-cucumber-align-pipes.git) - Aligns pipes while you are actually typing them in cucumber features
-* [screen plugin on Github](https://github.com/ervandew/screen) - [screen plugin on vim website](http://www.vim.org/scripts/script.php?script_id=2711) - Screen/Tmux integration
-* [ctrl+p](https://github.com/kien/ctrlp.vim) - Fuzzy finder
+- **Languages**: node 24.15, python 3.12.13, elixir 1.20.2-otp-29, erlang 29.0.3, rust 1.97.1
+- **AI**: `pipx:mempalace`, `npm:beads-ui`
+- **CLI**: `github:rtk-ai/rtk`, `github:gastownhall/beads`, just, kubectl, helm, minikube, tilt, doppler, gum, stern, uv, yarn
+- **DB**: `aqua:dolthub/dolt`
 
-### plugins - under the hood
+## AI section
 
-* [Vundle](https://github.com/gmarik/vundle) - VIM plugin management
+### Claude Code (`ai/claude-code/`)
 
-## Customization
+- `settings.json` — permissions, hooks (RTK rewriting, beads prime, statusline, caveman), enabled plugins
+- `CLAUDE.md` / `RTK.md` — global instructions
+- `statusline.mjs` — two-line Nerd Font status bar (model, context %, cost, rate limits)
+- `track-active-context.mjs` — hook that tracks active skill + running subagents for statusline
+- `skills/generate-interview/` — generate technical interview exercises from a codebase
 
-Please put your custom setting in a `.custom.vim` file at the root of the dotfile directory
+### opencode (`ai/opencode/`)
 
-## Cheat sheet
+- `opencode.json` — MCP (mempalace), skills path, plugins, local LLM providers (llama.cpp + vLLM)
+- `AGENTS.md` — operating doctrine (RTK-first, mempalace-first, beads for tasks)
+- `caveman.md` — caveman mode rules
+- `agents/` — 26 Elixir/Phoenix specialized agents (ash, ecto, oban, liveview, security, etc.)
+- `plugins/phx-hooks.js` — Elixir/Phoenix hook shim for opencode
+- `plugins/rtk.js` — RTK bash rewriter plugin for opencode
 
-### ctrl + p
+### beads (`ai/beads/`)
 
-* Press `<F6>` to purge the cache for the current directory to get new files, remove deleted files and apply new ignore options.
-* Press `<c-f>` and `<c-b>` to cycle between modes.
-* Press `<c-d>` to switch to filename only search instead of full path.
-* Press `<c-r>` to switch to regexp mode.
-* Use `<c-n>`, `<c-p>` to select the next/previous string in the prompt's history.
-* Use `<c-y>` to create a new file and its parent directories.
-* Use `<c-z>` to mark/unmark multiple files and `<c-o>` to open them.
+Config for the `bd` issue tracker. No database files tracked — only `config.yaml` (preferences, not secrets).
 
-If you need more information, please use `:help ctrlp` within vim
+### mempalace (`ai/mempalace/`)
 
-### Fugitive
+`config.json` selects the SQLite backend. The 777MB database lives at `~/.mempalace/palace/` (not tracked).
 
-These are really good videos showcasing Fugitive functionalities
+## Dev section
 
-* [#1 - A complement to command line git](http://vimcasts.org/episodes/fugitive-vim---a-complement-to-command-line-git/)
-* [#2 - Fugitive vim working with the git index](http://vimcasts.org/episodes/fugitive-vim-working-with-the-git-index/)
-* [#3 - Resolving merge conflicts with vimdiff](http://vimcasts.org/episodes/fugitive-vim-resolving-merge-conflicts-with-vimdiff/)
-* [#4 - Browsing the git object database](http://vimcasts.org/episodes/fugitive-vim-browsing-the-git-object-database/)
-* [#5 - The history of a git repository](http://vimcasts.org/episodes/fugitive-vim-exploring-the-history-of-a-git-repository/)
+### nvim (`dev/nvim/`)
 
-## Credits
+LazyVim configuration. Plugins include: avante.lua, elixir-tools, formatting, snacks, neo-tree.
 
-I would like to thank these guys, this config was largely inspired by their work:
+### tmux (`dev/tmux.conf`)
 
-- [Joshua Clayton](https://github.com/joshuaclayton/dotfiles)
-- [Nicolas Viennot](https://github.com/nviennot/vim-config)
+### Global justfile (`dev/just/justfile`)
+
+`just -g` runs against this file from any directory. Recipes for local LLM servers:
+- `just -g qwen` — Qwen3.6-35B-A3B MoE via llama.cpp (primary daily driver, 256K ctx)
+- `just -g gemma` — Gemma-4-12B QAT + MTP speculative decode
+- `just -g qwen-nvfp4-unsloth` — Qwen3.6-27B NVFP4 via vLLM
+
+`dev/just/.mise.toml` defines a `setup` task that installs vLLM into a local venv.
+
+## GNOME
+
+`gnome-settings.dconf` is exported with `dconf dump /org/gnome/` and loaded by `just gnome`.
+To update after changing settings: `dconf dump /org/gnome/ > gnome-settings.dconf`.
