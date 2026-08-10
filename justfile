@@ -345,7 +345,7 @@ gnome:
 
 # ── AI / ML ─────────────────────────────────────────────────────────────────
 
-# Build llama.cpp (CUDA if nvidia-smi detected)
+# Build llama.cpp (CUDA if nvidia-smi detected); skips cmake build if binary already exists
 llama:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -355,6 +355,11 @@ llama:
         git clone https://github.com/ggerganov/llama.cpp.git "$llama_dir"
     else
         git -C "$llama_dir" pull --ff-only || true
+    fi
+    bin="$llama_dir/build/bin/llama-server"
+    if [[ -f "$bin" ]]; then
+        echo "llama already built (delete $bin to rebuild)"
+        exit 0
     fi
     cmake_flags=(-DCMAKE_BUILD_TYPE=Release)
     command -v nvidia-smi &>/dev/null && cmake_flags+=(-DGGML_CUDA=ON) && echo "  CUDA build"
