@@ -466,21 +466,21 @@ setup_gnome() {
 
 install_nerd_fonts() {
     local fonts_dir="$HOME/.local/share/fonts"
-    if ls "$fonts_dir"/Ubuntu*Nerd*.ttf &>/dev/null 2>&1; then
-        log_ok "Ubuntu Nerd Fonts already installed"
+    if ls "$fonts_dir"/UbuntuMonoNerdFont*.ttf &>/dev/null 2>&1; then
+        log_ok "UbuntuMono Nerd Fonts already installed"
         return
     fi
-    log_info "Installing Ubuntu Nerd Fonts..."
+    log_info "Installing UbuntuMono Nerd Fonts..."
     local tmp_dir
     tmp_dir="$(mktemp -d)"
     local version="3.5.0"
-    curl -fsSL "https://github.com/ryanoasis/nerd-fonts/releases/download/v${version}/Ubuntu.tar.xz" \
-        -o "$tmp_dir/Ubuntu.tar.xz"
+    curl -fsSL "https://github.com/ryanoasis/nerd-fonts/releases/download/v${version}/UbuntuMono.tar.xz" \
+        -o "$tmp_dir/UbuntuMono.tar.xz"
     mkdir -p "$fonts_dir"
-    tar -xf "$tmp_dir/Ubuntu.tar.xz" -C "$fonts_dir"
+    tar -xf "$tmp_dir/UbuntuMono.tar.xz" -C "$fonts_dir"
     rm -rf "$tmp_dir"
     fc-cache -fv > /dev/null 2>&1
-    log_ok "Ubuntu Nerd Fonts installed"
+    log_ok "UbuntuMono Nerd Fonts installed"
 }
 
 install_dash_to_dock() {
