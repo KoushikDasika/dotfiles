@@ -423,6 +423,7 @@ setup_gnome() {
     log_ok "GNOME tools installed"
 
     install_nerd_fonts
+    install_dash_to_dock
     restore_gnome_settings
 }
 
@@ -443,6 +444,34 @@ install_nerd_fonts() {
     rm -rf "$tmp_dir"
     fc-cache -fv > /dev/null 2>&1
     log_ok "Ubuntu Nerd Fonts installed"
+}
+
+install_dash_to_dock() {
+    local ext_id="dash-to-dock@micheleg.gmail.com"
+    local ext_dir="$HOME/.local/share/gnome-shell/extensions/$ext_id"
+    local repo_dir="$HOME/git/dash-to-dock"
+
+    if [[ -d "$ext_dir" ]]; then
+        log_ok "Dash to Dock already installed"
+        gnome-extensions enable "$ext_id" 2>/dev/null || true
+        return
+    fi
+
+    log_info "Installing Dash to Dock..."
+    mkdir -p "$HOME/git"
+    if [[ ! -d "$repo_dir" ]]; then
+        git clone https://github.com/micheleg/dash-to-dock.git "$repo_dir"
+    fi
+
+    mkdir -p "$(dirname "$ext_dir")"
+    make -C "$repo_dir" install 2>/dev/null || (
+        mkdir -p "$ext_dir"
+        cp -r "$repo_dir"/. "$ext_dir/"
+    )
+
+    gnome-extensions enable "$ext_id" 2>/dev/null || \
+        log_warn "Could not enable Dash to Dock now — log out/in and enable it via Extensions app"
+    log_ok "Dash to Dock installed ($ext_id)"
 }
 
 restore_gnome_settings() {
