@@ -238,12 +238,24 @@ qwen-nvfp4-nvidia port="8000" ctx="262144":
     _serve || { _setup && _serve; }
 
 # Qwen3.6-27B FP8 + MTP via Atlas Spark — serves OpenAI-compatible API on localhost:8888
+# --gpu-mem 0.40: caps to actual budget (25GB weights + 15GB KV@60K + 4GB overhead ≈ 44GB of 121GB)
 spark-fp8-mtp:
-    sparkrun run @atlas/qwen3.6-27b-fp8-mtp --hosts localhost
+    sparkrun run @atlas/qwen3.6-27b-fp8-mtp --hosts localhost --gpu-mem 0.40
 
 # Qwen3.6-27B NVFP4 (unsloth) via Atlas Spark — serves OpenAI-compatible API on localhost:8888
+# --gpu-mem 0.25: caps to actual budget (14GB weights + 8GB KV@32K + 4GB overhead ≈ 26GB of 121GB)
 spark-nvfp4:
-    sparkrun run @atlas/qwen3.6-27b-nvfp4-unsloth --hosts localhost
+    sparkrun run @atlas/qwen3.6-27b-nvfp4-unsloth --hosts localhost --gpu-mem 0.25
+
+# Qwen3.6-27B Q8_K_XL + MTP via llamacpp — FP8-equivalent quality, 200K ctx on GB10 (~28GB weights)
+qwen-dense-q8 ctx="200000" vision="off":
+    {{llama}} \
+        -hf unsloth/Qwen3.6-27B-MTP-GGUF:UD-Q8_K_XL \
+        -ngl 99 \
+        -c {{ctx}} -fa on -np 1 \
+        --cache-type-k q8_0 --cache-type-v q8_0 \
+        --spec-type draft-mtp --spec-draft-n-max 2 \
+        {{ if vision == "on" { "" } else { "--no-mmproj" } }}
 
 # benchmark the cached Qwen3.6-27B Q4_K_XL
 bench-qwen:

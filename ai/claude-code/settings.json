@@ -190,5 +190,6 @@
   "theme": "auto",
   "skipAutoPermissionPrompt": true,
   "voiceEnabled": false,
-  "mcpServers": {}
+  "mcpServers": {},
+  "model": "opusplan"
 }
