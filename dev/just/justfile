@@ -237,6 +237,14 @@ qwen-nvfp4-nvidia port="8000" ctx="262144":
     [ -f "$PYTHON" ] || _setup
     _serve || { _setup && _serve; }
 
+# Qwen3.6-27B FP8 + MTP via Atlas Spark — serves OpenAI-compatible API on localhost:8888
+spark-fp8-mtp:
+    sparkrun run @atlas/qwen3.6-27b-fp8-mtp --hosts localhost
+
+# Qwen3.6-27B NVFP4 (unsloth) via Atlas Spark — serves OpenAI-compatible API on localhost:8888
+spark-nvfp4:
+    sparkrun run @atlas/qwen3.6-27b-nvfp4-unsloth --hosts localhost
+
 # benchmark the cached Qwen3.6-27B Q4_K_XL
 bench-qwen:
     {{bench}} -m {{ home_directory() / ".cache/huggingface/hub/models--unsloth--Qwen3.6-27B-MTP-GGUF/snapshots/5cb35eb3dcbf52dbce5f87dbc64df6aaffadcace/Qwen3.6-27B-UD-Q4_K_XL.gguf" }} -ngl 99 -fa 1
