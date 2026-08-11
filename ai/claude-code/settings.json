@@ -146,7 +146,9 @@
     "elixir-phoenix@oliver-kriska": true,
     "mempalace@mempalace": true,
     "rust-analyzer-lsp@claude-plugins-official": true,
-    "lv@oliver-kriska": true
+    "lv@oliver-kriska": true,
+    "ecto@oliver-kriska": true,
+    "beads@beads-marketplace": true
   },
   "extraKnownMarketplaces": {
     "oliver-kriska": {

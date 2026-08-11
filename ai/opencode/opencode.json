@@ -26,7 +26,7 @@
       "npm": "@ai-sdk/openai-compatible",
       "name": "llama-server (local)",
       "options": {
-        "baseURL": "http://127.0.0.1:8080/v1"
+        "baseURL": "http://127.0.0.1:8888/v1"
       },
       "models": {
         "qwen3.6-35b-a3b-mtp-gguf": {
@@ -38,18 +38,25 @@
         }
       }
     },
-    "vllm": {
+    "atlas-spark": {
       "npm": "@ai-sdk/openai-compatible",
-      "name": "vLLM (local)",
+      "name": "Atlas Spark (local)",
       "options": {
-        "baseURL": "http://127.0.0.1:8000/v1"
+        "baseURL": "http://127.0.0.1:8888/v1"
       },
       "models": {
-        "/home/halcyonicstorm/git/models/Qwen3.6-27B-NVFP4-unsloth": {
-          "name": "Qwen3.6-27B-NVFP4 (unsloth)",
+        "@atlas/qwen3.6-27b-fp8-mtp": {
+          "name": "Qwen3.6-27B FP8+MTP (Atlas Spark)",
           "limit": {
-            "context": 16384,
-            "output": 16384
+            "context": 262144,
+            "output": 32768
+          }
+        },
+        "@atlas/qwen3.6-27b-nvfp4-unsloth": {
+          "name": "Qwen3.6-27B NVFP4 unsloth (Atlas Spark)",
+          "limit": {
+            "context": 262144,
+            "output": 32768
           }
         }
       }

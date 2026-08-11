@@ -49,7 +49,6 @@ snaps:
     #!/usr/bin/env bash
     set -euo pipefail
     snap list nvim    &>/dev/null || sudo snap install nvim --classic
-    snap list opencode    &>/dev/null || sudo snap install opencode --classic
     snap list chromium &>/dev/null || sudo snap install chromium
     arch="$(dpkg --print-architecture)"
     if [[ "$arch" != "arm64" ]]; then
