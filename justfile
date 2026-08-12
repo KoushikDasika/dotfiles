@@ -151,10 +151,26 @@ symlinks:
     safe_symlink "$DOTFILES/ai/opencode/agents"            "$HOME/.config/opencode/agents"
     safe_symlink "$DOTFILES/ai/opencode/plugins"           "$HOME/.config/opencode/plugins"
 
-    # just global justfile
+    # just global justfile — hardware-gated modules (mod? skips unlinked files)
     mkdir -p "$HOME/.config/just"
     safe_symlink "$DOTFILES/dev/just/justfile"   "$HOME/.config/just/justfile"
     safe_symlink "$DOTFILES/dev/just/.mise.toml" "$HOME/.config/just/.mise.toml"
+    GPU="$(nvidia-smi --query-gpu=name --format=csv,noheader 2>/dev/null | head -1 || true)"
+    if [[ "$GPU" == *GB10* ]]; then
+        just_mods="atlas llama vllm qwen38"
+    else
+        just_mods="rtx5090"
+    fi
+    # drop module links from other hardware profiles
+    for f in "$HOME/.config/just/"*.just; do
+        [[ -L "$f" ]] || continue
+        [[ "$(readlink "$f")" == "$DOTFILES/dev/just/"* ]] || continue
+        name="$(basename "$f" .just)"
+        [[ " $just_mods " == *" $name "* ]] || { echo "  unlink: $f"; rm "$f"; }
+    done
+    for m in $just_mods; do
+        safe_symlink "$DOTFILES/dev/just/$m.just" "$HOME/.config/just/$m.just"
+    done
 
     # beads
     mkdir -p "$HOME/.beads"
