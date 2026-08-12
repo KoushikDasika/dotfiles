@@ -22,38 +22,124 @@
     "~/.config/opencode/node_modules/rtk-rewriter"
   ],
   "provider": {
-    "llama.cpp": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "llama-server (local)",
-      "options": {
-        "baseURL": "http://127.0.0.1:8888/v1"
-      },
-      "models": {
-        "qwen3.6-35b-a3b-mtp-gguf": {
-          "name": "Qwen3.6-35B-A3B-MTP-GGUF:UD-Q4_K_XL",
-          "limit": {
-            "context": 81920,
-            "output": 128000
-          }
-        }
-      }
-    },
     "atlas-spark": {
       "npm": "@ai-sdk/openai-compatible",
-      "name": "Atlas Spark (local)",
+      "name": "Atlas Spark (sparkrun, DGX Spark)",
       "options": {
         "baseURL": "http://127.0.0.1:8888/v1"
       },
       "models": {
-        "@atlas/qwen3.6-27b-fp8-mtp": {
-          "name": "Qwen3.6-27B FP8+MTP (Atlas Spark)",
+        "@atlas/qwen3.6-35b-a3b-fp8-mtp": {
+          "name": "Qwen3.6-35B-A3B FP8+MTP — flagship (just -g up)",
           "limit": {
             "context": 262144,
             "output": 32768
           }
         },
-        "@atlas/qwen3.6-27b-nvfp4-unsloth": {
-          "name": "Qwen3.6-27B NVFP4 unsloth (Atlas Spark)",
+        "@atlas/qwen3.6-35b-a3b-nvfp4": {
+          "name": "Qwen3.6-35B-A3B NVFP4 — fastest, ~116 t/s (just -g atlas a3b-nvfp4)",
+          "limit": {
+            "context": 262144,
+            "output": 32768
+          }
+        },
+        "@atlas/qwen3.6-27b-fp8-mtp": {
+          "name": "Qwen3.6-27B FP8+MTP — smartest dense (just -g atlas dense)",
+          "limit": {
+            "context": 262144,
+            "output": 32768
+          }
+        },
+        "@atlas/qwen3.6-27b-nvfp4": {
+          "name": "Qwen3.6-27B NVFP4 — lighter dense (just -g atlas dense-nvfp4)",
+          "limit": {
+            "context": 262144,
+            "output": 32768
+          }
+        }
+      }
+    },
+    "llama.cpp": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "llama-server (local)",
+      "options": {
+        "baseURL": "http://127.0.0.1:8080/v1"
+      },
+      "models": {
+        "qwen3.6-35b-a3b-q8": {
+          "name": "Qwen3.6-35B-A3B UD-Q8_K_XL+MTP (just -g llama a3b-q8)",
+          "limit": {
+            "context": 262144,
+            "output": 32768
+          }
+        },
+        "qwen3.6-35b-a3b-bf16": {
+          "name": "Qwen3.6-35B-A3B BF16+MTP (just -g llama a3b-bf16)",
+          "limit": {
+            "context": 262144,
+            "output": 32768
+          }
+        },
+        "qwen3.6-27b-q8": {
+          "name": "Qwen3.6-27B UD-Q8_K_XL+MTP (just -g llama dense-q8)",
+          "limit": {
+            "context": 200000,
+            "output": 32768
+          }
+        },
+        "qwen3.6-27b-bf16": {
+          "name": "Qwen3.6-27B BF16+MTP (just -g llama dense-bf16)",
+          "limit": {
+            "context": 131072,
+            "output": 32768
+          }
+        },
+        "qwen3.6-35b-a3b-q4": {
+          "name": "Qwen3.6-35B-A3B UD-Q4_K_XL+MTP, RTX 5090 laptop (just -g rtx5090 qwen-wide)",
+          "limit": {
+            "context": 81920,
+            "output": 32768
+          }
+        },
+        "qwen3.6-27b-q4": {
+          "name": "Qwen3.6-27B UD-Q4_K_XL+MTP, RTX 5090 laptop (just -g rtx5090 qwen-dense-150k)",
+          "limit": {
+            "context": 153600,
+            "output": 32768
+          }
+        },
+        "gemma-4-12b-qat": {
+          "name": "gemma-4-12B QAT+MTP, RTX 5090 laptop (just -g rtx5090 gemma)",
+          "limit": {
+            "context": 200000,
+            "output": 32768
+          }
+        },
+        "gemma-4-12b-agentic-ft": {
+          "name": "gemma-4-12B agentic fine-tune Q8+MTP, RTX 5090 laptop (just -g rtx5090 gemma-ft)",
+          "limit": {
+            "context": 262144,
+            "output": 32768
+          }
+        }
+      }
+    },
+    "vllm": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "vLLM (local, port 8000)",
+      "options": {
+        "baseURL": "http://127.0.0.1:8000/v1"
+      },
+      "models": {
+        "/home/halcyonicstorm/git/models/Qwen3.6-27B-NVFP4-unsloth": {
+          "name": "Qwen3.6-27B NVFP4 unsloth (just -g vllm dense-nvfp4-unsloth)",
+          "limit": {
+            "context": 131072,
+            "output": 32768
+          }
+        },
+        "/home/halcyonicstorm/git/models/Qwen3.6-27B-NVFP4-nvidia": {
+          "name": "Qwen3.6-27B NVFP4 nvidia (just -g vllm dense-nvfp4-nvidia)",
           "limit": {
             "context": 262144,
             "output": 32768
