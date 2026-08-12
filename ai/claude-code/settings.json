@@ -56,7 +56,7 @@
     ],
     "defaultMode": "default"
   },
-  "model": "claude-fable-5[1m]",
+  "model": "opusplan",
   "hooks": {
     "PreCompact": [
       {

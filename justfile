@@ -157,7 +157,7 @@ symlinks:
     safe_symlink "$DOTFILES/dev/just/.mise.toml" "$HOME/.config/just/.mise.toml"
     GPU="$(nvidia-smi --query-gpu=name --format=csv,noheader 2>/dev/null | head -1 || true)"
     if [[ "$GPU" == *GB10* ]]; then
-        just_mods="atlas llama vllm qwen38"
+        just_mods="atlas sparkrun llama vllm qwen38"
     else
         just_mods="rtx5090"
     fi

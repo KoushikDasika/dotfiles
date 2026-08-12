@@ -1,17 +1,21 @@
 [tools]
 python = "3.12"
+uv = "latest"
+
+[tasks.install-sparkrun]
+description = "Install sparkrun CLI via uv tool"
+run = "uv tool install sparkrun"
 
 [tasks.setup]
-description = "Create venv and install vLLM with CUDA support"
+description = "Create venv and install vLLM with CUDA support (uses uv)"
 run = """
 #!/usr/bin/env bash
 set -euo pipefail
 VENV="$HOME/.config/just/.venv"
 if [ ! -f "$VENV/bin/python" ]; then
-    python3.12 -m venv "$VENV"
+    uv venv "$VENV" --python 3.12
 fi
-"$VENV/bin/pip" install --upgrade pip
-"$VENV/bin/pip" install vllm
+uv pip install --python "$VENV/bin/python" vllm
 
 # Fix flashinfer CUDA lib paths: cu13 ships lib/ not lib64/, linker expects lib64/
 CU13="$VENV/lib/python3.12/site-packages/nvidia/cu13"
