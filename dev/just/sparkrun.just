@@ -15,6 +15,9 @@ dense27b hosts="spark-29ca" ctx="262144":
 a3b-nospec hosts="spark-29ca" ctx="262144":
     sparkrun run {{sparkrun_recipes}}/qwen-3.6-35B-A3B-FP8-nospec.yml --hosts {{hosts}} --max-model-len {{ctx}}
 
+qwen-35-122b hosts="spark-29ca" ctx="262144":
+    sparkrun run {{sparkrun_recipes}}/qwen-3.6-35B-A3B-FP8-nospec.yml --hosts {{hosts}} --max-model-len {{ctx}}
+
 # Download DFlash draft model to host HF cache (required for a3b speculative decoding)
 download-dflash hosts="spark-29ca":
     ssh {{hosts}} 'hf download z-lab/Qwen3.6-35B-A3B-DFlash --revision 31977fbe13a86e8b961774f773058175676d89b8 --cache-dir $HOME/.cache/huggingface/hub'
