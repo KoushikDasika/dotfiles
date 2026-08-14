@@ -16,7 +16,7 @@ a3b-nospec hosts="spark-29ca" ctx="262144":
     sparkrun run {{sparkrun_recipes}}/qwen-3.6-35B-A3B-FP8-nospec.yml --hosts {{hosts}} --max-model-len {{ctx}}
 
 qwen-35-122b hosts="spark-29ca" ctx="262144":
-    sparkrun run {{sparkrun_recipes}}/qwen-3.6-35B-A3B-FP8-nospec.yml --hosts {{hosts}} --max-model-len {{ctx}}
+    sparkrun run {{sparkrun_recipes}}/qwen-3.5-122B-A10B-int4-fp8-hybrid.yml --hosts {{hosts}} --max-model-len {{ctx}}
 
 # Download DFlash draft model to host HF cache (required for a3b speculative decoding)
 download-dflash hosts="spark-29ca":

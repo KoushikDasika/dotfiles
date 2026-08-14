@@ -22,6 +22,8 @@ command: |
     --tool-call-parser qwen3_xml \
     --reasoning-parser qwen3 \
     --speculative-config '{"method":"dflash","model":"z-lab/Qwen3.5-122B-A10B-DFlash","num_speculative_tokens":12,"attention_backend":"FLASH_ATTN"}'
+executor_config:
+  entrypoint: ""
 recipe_version: '1'
 name: cogni-brain-qwen3.5-122b-dflash-dense
 cluster_only: false
