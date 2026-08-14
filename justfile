@@ -180,6 +180,28 @@ symlinks:
     mkdir -p "$HOME/.mempalace"
     safe_symlink "$DOTFILES/ai/mempalace/config.json" "$HOME/.mempalace/config.json"
 
+    # opencode skills — symlink Claude plugin skills for cross-tool access
+    # skipped if plugins cache not yet populated (fresh machine before claude install)
+    SKILLS_DIR="$HOME/.config/opencode/skills"
+    CACHE_DIR="$HOME/.claude/plugins/cache"
+    if [ -d "$CACHE_DIR" ]; then
+        mkdir -p "$SKILLS_DIR"
+        find "$SKILLS_DIR" -maxdepth 1 -type l ! -exec test -e {} \; -delete
+        for publisher in "$CACHE_DIR"/*/; do
+            [ -d "$publisher" ] || continue
+            for plugin in "$publisher"/*/; do
+                [ -d "$plugin" ] || continue
+                latest=$(ls -td "$plugin"*/ 2>/dev/null | head -1)
+                [ -d "$latest/skills" ] || continue
+                for skill in "$latest/skills"/*/; do
+                    [ -d "$skill" ] || continue
+                    name="$(basename "$skill")"
+                    safe_symlink "$skill" "$SKILLS_DIR/$name"
+                done
+            done
+        done
+    fi
+
     echo "symlinks ok"
 
 # Install Tmux Plugin Manager + plugins

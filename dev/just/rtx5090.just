@@ -162,6 +162,53 @@ qwen-dense-150k ctx="153600" vision="off":
         --spec-type draft-mtp --spec-draft-n-max 2 \
         {{ if vision == "on" { "" } else { "--no-mmproj" } }}
 
+# Qwen3.8-27B dense Q4_K_XL — text-only. No MTP GGUF available yet (2026-08-14).
+# Add -hfd spec head + --spec-type draft-mtp once unsloth/Qwen3.8-27B-MTP-GGUF drops.
+qwen38 ctx=ctx vision="off":
+    {{llama}} \
+        -hf unsloth/Qwen3.8-27B-GGUF:UD-Q4_K_XL \
+        -ngl 99 \
+        -c {{ctx}} -fa on -np 1 \
+        --cache-type-k q8_0 --cache-type-v q8_0 \
+        {{ if vision == "on" { "" } else { "--no-mmproj" } }}
+
+vllm_python := home_directory() / ".config/just/.venv/bin/python"
+
+# Download unsloth/Qwen3.8-27B-NVFP4 → ~/git/models/Qwen3.8-27B-NVFP4-unsloth
+download-qwen38-nvfp4:
+    {{vllm_python}} -c "from huggingface_hub import snapshot_download; snapshot_download('unsloth/Qwen3.8-27B-NVFP4', local_dir='{{home_directory() / "git/models/Qwen3.8-27B-NVFP4-unsloth"}}')"
+
+# Qwen3.8-27B NVFP4 via vLLM — text-only (--language-model-only skips vision encoder).
+# Run download-qwen38-nvfp4 first. Auto-installs vLLM via mise if missing.
+# Max ctx on 24GB VRAM is ~23520 (vLLM-reported KV cache limit). Default 20480 leaves margin.
+# To push higher: just -g qwen38-nvfp4 ctx=23040
+# MTP drafter OOMs on 24GB (needs ~140 MiB on top of 22.85 GiB model). Spark only.
+qwen38-nvfp4 port="8000" ctx="20480":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    PYTHON="{{vllm_python}}"
+    MODEL="{{home_directory() / "git/models/Qwen3.8-27B-NVFP4-unsloth"}}"
+    VENV_SITE="$(dirname "$PYTHON")/../lib/python3.12/site-packages"
+    export CUDA_HOME="$(realpath "$VENV_SITE/nvidia/cu13")"
+    export LD_LIBRARY_PATH="$VENV_SITE/nvidia/cu13/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+    export NVCC_PREPEND_FLAGS="-DCCCL_DISABLE_CTK_COMPATIBILITY_CHECK"
+    export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+    export HF_HUB_OFFLINE=1
+    _setup() { cd "$HOME/.config/just" && mise run setup; }
+    _serve() {
+        "$PYTHON" -m vllm.entrypoints.openai.api_server \
+            --model "$MODEL" \
+            --port {{port}} \
+            --max-model-len {{ctx}} \
+            --enforce-eager \
+            --gpu-memory-utilization 0.95 \
+            --language-model-only \
+            --enable-auto-tool-choice \
+            --tool-call-parser qwen3_xml
+    }
+    [ -f "$PYTHON" ] || _setup
+    _serve || { _setup && _serve; }
+
 # benchmark the cached Qwen3.6-27B Q4_K_XL
 bench-qwen:
     {{llama_bench}} -m {{ home_directory() / ".cache/huggingface/hub/models--unsloth--Qwen3.6-27B-MTP-GGUF/snapshots/5cb35eb3dcbf52dbce5f87dbc64df6aaffadcace/Qwen3.6-27B-UD-Q4_K_XL.gguf" }} -ngl 99 -fa 1

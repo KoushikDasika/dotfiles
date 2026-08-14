@@ -121,6 +121,20 @@
             "context": 262144,
             "output": 32768
           }
+        },
+        "qwen3.8-27b-q4": {
+          "name": "Qwen3.8-27B UD-Q4_K_XL (just -g qwen38 serve / just -g rtx5090 qwen38)",
+          "limit": {
+            "context": 200000,
+            "output": 32768
+          }
+        },
+        "qwen3.8-27b-bf16": {
+          "name": "Qwen3.8-27B BF16 — max quality, DGX Spark only (just -g qwen38 dense-bf16)",
+          "limit": {
+            "context": 200000,
+            "output": 32768
+          }
         }
       }
     },
@@ -143,6 +157,13 @@
           "limit": {
             "context": 262144,
             "output": 32768
+          }
+        },
+        "/home/halcyonicstorm/git/models/Qwen3.8-27B-NVFP4-unsloth": {
+          "name": "Qwen3.8-27B NVFP4 unsloth (just -g rtx5090 qwen38-nvfp4)",
+          "limit": {
+            "context": 20480,
+            "output": 8192
           }
         }
       }
