@@ -7,11 +7,12 @@
 
 llama_bench := home_directory() / "git/llama.cpp/build/bin/llama-bench"
 
-mod? atlas # sparkrun @atlas recipes (DGX Spark)
-mod? llama # llama.cpp recipes (DGX Spark)
-mod? vllm # vLLM recipes (DGX Spark)
-mod? qwen38 # Qwen3.8-27B landing pad (drops 2026-08-12)
-mod? rtx5090 # legacy 24GB RTX 5090 laptop recipes
+mod? atlas    # sparkrun @atlas registry recipes (DGX Spark)
+mod? sparkrun # sparkrun local-YAML recipes (ai/sparkrun-recipes/)
+mod? llama    # llama.cpp recipes (DGX Spark)
+mod? vllm     # vLLM recipes (DGX Spark)
+mod? qwen38   # Qwen3.8-27B landing pad (drops 2026-08-12)
+mod? rtx5090  # legacy 24GB RTX 5090 laptop recipes
 
 # show available recipes
 default:
