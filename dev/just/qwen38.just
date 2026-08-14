@@ -26,6 +26,7 @@ serve ctx="200000" vision="off":
         -ngl 99 \
         -c {{ctx}} -fa on -np 1 \
         --cache-type-k q8_0 --cache-type-v q8_0 \
+        --context-shift \
         --spec-type draft-mtp --spec-draft-n-max 5 \
         {{ if vision == "on" { "" } else { "--no-mmproj" } }}
 
@@ -35,6 +36,7 @@ dense-bf16 ctx="200000" vision="off":
     {{llama}} \
         -hf unsloth/Qwen3.8-27B-GGUF:BF16 \
         -ngl 99 \
+        --context-shift \
         -c {{ctx}} -fa on -np 1 \
         --cache-type-k q8_0 --cache-type-v q8_0 \
         --spec-type draft-mtp --spec-draft-n-max 5 \
