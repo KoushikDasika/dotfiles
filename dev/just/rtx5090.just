@@ -162,14 +162,14 @@ qwen-dense-150k ctx="153600" vision="off":
         --spec-type draft-mtp --spec-draft-n-max 2 \
         {{ if vision == "on" { "" } else { "--no-mmproj" } }}
 
-# Qwen3.8-27B dense Q4_K_XL — text-only. No MTP GGUF available yet (2026-08-14).
-# Add -hfd spec head + --spec-type draft-mtp once unsloth/Qwen3.8-27B-MTP-GGUF drops.
+# Qwen3.8-27B dense Q4_K_XL. MTP heads baked into model weights — no separate draft model needed.
 qwen38 ctx=ctx vision="off":
     {{llama}} \
         -hf unsloth/Qwen3.8-27B-GGUF:UD-Q4_K_XL \
         -ngl 99 \
         -c {{ctx}} -fa on -np 1 \
         --cache-type-k q8_0 --cache-type-v q8_0 \
+        --spec-type draft-mtp --spec-draft-n-max 5 \
         {{ if vision == "on" { "" } else { "--no-mmproj" } }}
 
 vllm_python := home_directory() / ".config/just/.venv/bin/python"

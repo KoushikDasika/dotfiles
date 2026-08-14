@@ -19,17 +19,17 @@ find-recipes:
     sparkrun update
     sparkrun search qwen3.8
 
-# Qwen3.8-27B dense UD-Q4_K_XL — default quality, no MTP yet
-# Add -hfd head + --spec-type draft-mtp once unsloth/Qwen3.8-27B-MTP-GGUF drops
+# Qwen3.8-27B dense UD-Q4_K_XL. MTP heads baked into model weights — no separate draft model needed.
 serve ctx="200000" vision="off":
     {{llama}} \
         -hf {{gguf_repo}}:{{quant}} \
         -ngl 99 \
         -c {{ctx}} -fa on -np 1 \
         --cache-type-k q8_0 --cache-type-v q8_0 \
+        --spec-type draft-mtp --spec-draft-n-max 5 \
         {{ if vision == "on" { "" } else { "--no-mmproj" } }}
 
-# Qwen3.8-27B dense BF16 (54.7GB, 2 shards) — max quality, ~5-8 t/s. No MTP yet.
+# Qwen3.8-27B dense BF16 (54.7GB, 2 shards) — max quality. MTP baked in.
 # Leaves ~67GB for KV on the 121GB Spark — 400K+ ctx fits comfortably.
 dense-bf16 ctx="200000" vision="off":
     {{llama}} \
@@ -37,4 +37,5 @@ dense-bf16 ctx="200000" vision="off":
         -ngl 99 \
         -c {{ctx}} -fa on -np 1 \
         --cache-type-k q8_0 --cache-type-v q8_0 \
+        --spec-type draft-mtp --spec-draft-n-max 5 \
         {{ if vision == "on" { "" } else { "--no-mmproj" } }}
