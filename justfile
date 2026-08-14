@@ -150,6 +150,7 @@ symlinks:
     safe_symlink "$DOTFILES/ai/opencode/RTK.md"            "$HOME/.config/opencode/RTK.md"
     safe_symlink "$DOTFILES/ai/opencode/agents"            "$HOME/.config/opencode/agents"
     safe_symlink "$DOTFILES/ai/opencode/plugins"           "$HOME/.config/opencode/plugins"
+    safe_symlink "$DOTFILES/ai/opencode/skills"            "$HOME/.config/opencode/skills"
 
     # just global justfile — hardware-gated modules (mod? skips unlinked files)
     mkdir -p "$HOME/.config/just"
@@ -180,29 +181,36 @@ symlinks:
     mkdir -p "$HOME/.mempalace"
     safe_symlink "$DOTFILES/ai/mempalace/config.json" "$HOME/.mempalace/config.json"
 
-    # opencode skills — symlink Claude plugin skills for cross-tool access
-    # skipped if plugins cache not yet populated (fresh machine before claude install)
-    SKILLS_DIR="$HOME/.config/opencode/skills"
+    echo "symlinks ok"
+
+# Sync opencode skills from installed Claude plugin caches into dotfiles.
+# Run after updating Claude plugins to snapshot new skill versions.
+opencode-skills-update:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    DOTFILES="{{DOTFILES}}"
+    SKILLS_DIR="$DOTFILES/ai/opencode/skills"
     CACHE_DIR="$HOME/.claude/plugins/cache"
-    if [ -d "$CACHE_DIR" ]; then
-        mkdir -p "$SKILLS_DIR"
-        find "$SKILLS_DIR" -maxdepth 1 -type l ! -exec test -e {} \; -delete
-        for publisher in "$CACHE_DIR"/*/; do
-            [ -d "$publisher" ] || continue
-            for plugin in "$publisher"/*/; do
-                [ -d "$plugin" ] || continue
-                latest=$(ls -td "$plugin"*/ 2>/dev/null | head -1)
-                [ -d "$latest/skills" ] || continue
-                for skill in "$latest/skills"/*/; do
-                    [ -d "$skill" ] || continue
-                    name="$(basename "$skill")"
-                    safe_symlink "$skill" "$SKILLS_DIR/$name"
-                done
+    [ -d "$CACHE_DIR" ] || { echo "no claude plugin cache — install claude plugins first"; exit 1; }
+    mkdir -p "$SKILLS_DIR"
+    for publisher in "$CACHE_DIR"/*/; do
+        [ -d "$publisher" ] || continue
+        for plugin in "$publisher"/*/; do
+            [ -d "$plugin" ] || continue
+            latest=$(ls -td "$plugin"*/ 2>/dev/null | head -1)
+            [ -d "$latest/skills" ] || continue
+            for skill in "$latest/skills"/*/; do
+                [ -d "$skill" ] || continue
+                name="$(basename "$skill")"
+                if [ -d "$SKILLS_DIR/$name" ]; then
+                    rm -rf "$SKILLS_DIR/$name"
+                fi
+                cp -r "$skill" "$SKILLS_DIR/$name"
+                echo "  updated: $name"
             done
         done
-    fi
-
-    echo "symlinks ok"
+    done
+    echo "opencode-skills-update ok"
 
 # Install Tmux Plugin Manager + plugins
 tmux-plugins:
