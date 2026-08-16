@@ -159,6 +159,9 @@ symlinks:
     GPU="$(nvidia-smi --query-gpu=name --format=csv,noheader 2>/dev/null | head -1 || true)"
     if [[ "$GPU" == *GB10* ]]; then
         just_mods="atlas sparkrun llama vllm qwen38"
+        safe_symlink "$DOTFILES/server/server.just" "$HOME/.config/just/server.just"
+        sudo ln -sf "$DOTFILES/server/llama.service" /etc/systemd/system/llama.service
+        echo "  linked: /etc/systemd/system/llama.service"
     else
         just_mods="rtx5090"
     fi

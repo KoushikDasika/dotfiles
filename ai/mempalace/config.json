@@ -1,3 +1,4 @@
 {
-  "backend": "sqlite_exact"
+  "backend": "chroma",
+  "embedding_model": "embeddinggemma"
 }

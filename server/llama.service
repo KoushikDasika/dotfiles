@@ -1,0 +1,26 @@
+[Unit]
+Description=llama.cpp Server (Qwen3.8-27B Q4_K_XL)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=halcyonicstorm
+ExecStart=/home/halcyonicstorm/git/llama.cpp/build/bin/llama-server \
+    -hf unsloth/Qwen3.8-27B-GGUF:UD-Q4_K_XL \
+    -ngl 99 \
+    -c 200000 -fa on -np 2 \
+    --cache-type-k q8_0 --cache-type-v q8_0 \
+    --context-shift \
+    --spec-type draft-mtp --spec-draft-n-max 5 \
+    --no-mmproj \
+    --host 0.0.0.0 \
+    --port 8080
+Restart=on-failure
+RestartSec=30
+TimeoutStartSec=600
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
