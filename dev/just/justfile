@@ -34,3 +34,18 @@ status:
 # benchmark any local gguf (pp512 + tg128)
 bench model:
     {{llama_bench}} -m {{model}} -ngl 99 -fa 1
+
+# ── Boot target ─────────────────────────────────────────────────────────────
+
+# Headless now + on next reboot (GUI off; sshd/tailscaled/llama keep running).
+# Run from tmux or SSH — a GUI terminal dies with the display.
+headless:
+    sudo systemctl set-default multi-user.target
+    sudo systemctl isolate multi-user.target
+    @echo "default target: $(systemctl get-default)"
+
+# GUI now + on next reboot
+gui:
+    sudo systemctl set-default graphical.target
+    sudo systemctl isolate graphical.target
+    @echo "default target: $(systemctl get-default)"

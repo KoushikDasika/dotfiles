@@ -1,0 +1,7 @@
+{
+  "version": "0.0.1",
+  "endpoints": {
+    "tcp:443": "https://localhost:8080",
+    "tcp:8080": "https://localhost:8080"
+  }
+}

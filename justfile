@@ -453,6 +453,53 @@ hf:
     fi
     echo "hf ok"
 
+# ── Networking ──────────────────────────────────────────────────────────────
+
+# Install Tailscale (apt, official .deb release)
+tailscale:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if dpkg -s tailscale &>/dev/null; then
+        echo "tailscale already installed"
+    else
+        curl -fsSL https://tailscale.com/stable.deb.releases | sudo apt-get install -y -qq -
+    fi
+    tailscale version | head -1
+    echo "tailscale ok"
+
+# Join the tailnet. Interactive (opens auth link) unless TS_AUTH_KEY is set.
+ts-up hostname="hooray-engine1":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if tailscale status --json 2>/dev/null | jq -e '.BackendState == "Running"' &>/dev/null; then
+        echo "tailscale already up"
+        exit 0
+    fi
+    up_args=(up --ssh --hostname="{{hostname}}")
+    if [[ -n "${TS_AUTH_KEY:-}" ]]; then
+        up_args+=(--auth-key="$TS_AUTH_KEY")
+    fi
+    sudo tailscale "${up_args[@]}"
+    echo "ts-up ok"
+
+# Apply declarative serve config for svc:llamacpp (llama.cpp API on :443 + :8080)
+ts-serve:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    DOTFILES="{{DOTFILES}}"
+    cfg="$DOTFILES/server/tailscale/llamacpp.json"
+    [[ -f "$cfg" ]] || { echo "missing $cfg"; exit 1; }
+    tailscale serve set-config --service=svc:llamacpp "$cfg"
+    tailscale serve status
+    echo "ts-serve ok"
+
+# Client machine: install + join (no serve config)
+tailscale-client: tailscale ts-up
+    @echo "client ready — no serve config on clients"
+
+# Server machine: install + join + apply svc:llamacpp serve config
+tailscale-server: tailscale ts-up ts-serve
+
 # ── Shell ────────────────────────────────────────────────────────────────────
 
 # Configure .bashrc
