@@ -12,6 +12,7 @@ mod? sparkrun # sparkrun local-YAML recipes (ai/sparkrun-recipes/)
 mod? llama    # llama.cpp recipes (DGX Spark)
 mod? vllm     # vLLM recipes (DGX Spark)
 mod? qwen38   # Qwen3.8-27B landing pad (drops 2026-08-12)
+mod? server   # server management (DGX Spark systemd services)
 mod? rtx5090  # legacy 24GB RTX 5090 laptop recipes
 
 # show available recipes
