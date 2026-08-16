@@ -66,3 +66,24 @@ dense-nvfp4-nvidia port="8000" ctx="262144":
     }
     [ -f "$PYTHON" ] || _setup
     _serve || { _setup && _serve; }
+
+qwen3-8 port="8000" ctx="262144":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    PYTHON="{{vllm_python}}"
+    MODEL="{{home_directory() / "git/models/Qwen3.6-27B-NVFP4-nvidia"}}"
+    VENV_CUDA="$(dirname "$PYTHON")/../lib/python3.12/site-packages/nvidia/cu13"
+    export CUDA_HOME="$(realpath "$VENV_CUDA")"
+    export HF_HUB_OFFLINE=1
+    _setup() { cd "$HOME/.config/just" && mise run setup; }
+    _serve() {
+        "$PYTHON" -m vllm.entrypoints.openai.api_server \
+            --model "$MODEL" \
+            --port {{port}} \
+            --quantization modelopt \
+            --max-model-len {{ctx}} \
+            --gpu-memory-utilization 0.85 \
+            --reasoning-parser qwen3
+    }
+    [ -f "$PYTHON" ] || _setup
+    _serve || { _setup && _serve; }

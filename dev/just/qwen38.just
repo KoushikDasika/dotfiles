@@ -24,7 +24,7 @@ serve ctx="200000" vision="off":
     {{llama}} \
         -hf {{gguf_repo}}:{{quant}} \
         -ngl 99 \
-        -c {{ctx}} -fa on -np 1 \
+        -c {{ctx}} -fa on -np 2 \
         --cache-type-k q8_0 --cache-type-v q8_0 \
         --context-shift \
         --spec-type draft-mtp --spec-draft-n-max 5 \
@@ -32,7 +32,7 @@ serve ctx="200000" vision="off":
 
 # Qwen3.8-27B dense BF16 (54.7GB, 2 shards) — max quality. MTP baked in.
 # Leaves ~67GB for KV on the 121GB Spark — 400K+ ctx fits comfortably.
-dense-bf16 ctx="200000" vision="off":
+dense-bf16 ctx="130000" vision="off":
     {{llama}} \
         -hf unsloth/Qwen3.8-27B-GGUF:BF16 \
         -ngl 99 \

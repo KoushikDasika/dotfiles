@@ -18,8 +18,9 @@
     "superpowers@git+https://github.com/obra/superpowers.git",
     "opencode-mem",
     "opencode-plan-manager",
-    "~/.config/opencode/node_modules/phx-hooks",
-    "~/.config/opencode/node_modules/rtk-rewriter"
+    "~/.config/opencode/plugins/mem-recall.js",
+    "~/.config/opencode/plugins/phx-hooks.js",
+    "~/.config/opencode/plugins/rtk.js"
   ],
   "provider": {
     "atlas-spark": {
@@ -125,7 +126,7 @@
         "qwen3.8-27b-q4": {
           "name": "Qwen3.8-27B UD-Q4_K_XL (just -g qwen38 serve / just -g rtx5090 qwen38)",
           "limit": {
-            "context": 200000,
+            "context": 100000,
             "output": 32768
           }
         },
