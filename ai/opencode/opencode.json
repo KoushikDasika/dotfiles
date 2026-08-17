@@ -126,7 +126,7 @@
         "qwen3.8-27b-q4": {
           "name": "Qwen3.8-27B UD-Q4_K_XL (just -g qwen38 serve / just -g rtx5090 qwen38)",
           "limit": {
-            "context": 160000,
+            "context": 200000,
             "output": 32768
           }
         },
