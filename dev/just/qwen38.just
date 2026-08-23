@@ -28,7 +28,9 @@ serve ctx="200000" vision="off":
         --cache-type-k q8_0 --cache-type-v q8_0 \
         --reasoning-preserve \
         --reasoning-budget 16384 \
-        --reasoning-budget-message "\n[Thinking budget exceeded - you may be cut off mid-0thought! its's time to transition to a best-effort final answer:]\n"
+        --reasoning-budget-message "\n[Thinking budget exceeded - you may be cut off mid-0thought! its's time to transition to a best-effort final answer:]\n" \
+        --repeat-penalty 1.0 \
+        --presence-penalty 0.0 \
         --context-shift \
         --spec-type draft-mtp --spec-draft-n-max 5 \
         {{ if vision == "on" { "" } else { "--no-mmproj" } }}
@@ -42,7 +44,9 @@ dense-bf16 ctx="130000" vision="off":
         --context-shift \
         --reasoning-preserve \
         --reasoning-budget 16384 \
-        --reasoning-budget-message "\n[Thinking budget exceeded - you may be cut off mid-0thought! its's time to transition to a best-effort final answer:]\n"
+        --reasoning-budget-message "\n[Thinking budget exceeded - you may be cut off mid-0thought! its's time to transition to a best-effort final answer:]\n" \
+        --repeat-penalty 1.0 \
+        --presence-penalty 0.0 \
         -c {{ctx}} -fa on -np 1 \
         --cache-type-k q8_0 --cache-type-v q8_0 \
         --spec-type draft-mtp --spec-draft-n-max 5 \
