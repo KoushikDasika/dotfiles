@@ -1,4 +1,5 @@
 {
   "backend": "chroma",
-  "embedding_model": "embeddinggemma"
+  "embedding_model": "embeddinggemma",
+  "embedding_device": "cuda"
 }
