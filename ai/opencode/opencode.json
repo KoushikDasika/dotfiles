@@ -23,11 +23,103 @@
     "~/.config/opencode/plugins/rtk.js"
   ],
   "provider": {
+    "truefoundry": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "TrueFoundry",
+      "options": {
+        "baseURL": "https://gateway.truefoundry.ai",
+        "headers": {},
+        "includeUsage": true,
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "setCacheKey": true
+      },
+      "models": {
+        "automatiq-claude/haiku": {
+          "name": "Haiku",
+          "cost": {
+            "input": 1.0,
+            "output": 5.0
+          }
+        },
+        "automatiq-prod-datateam/sonnet-4.6": {
+          "name": "Sonnet 4.6",
+          "cost": {
+            "input": 3.0,
+            "output": 15.0
+          }
+        },
+        "automatiq-claude/opus": {
+          "name": "Opus 4.6",
+          "cost": {
+            "input": 5.0,
+            "output": 25.0
+          }
+        },
+        "automatiq-openai/openai-astra-6": {
+          "name": "Astra 6",
+          "cost": {
+            "input": 10.0,
+            "output": 50.0
+          }
+        },
+        "automatiq-openai/openai-sol-5-6": {
+          "name": "Sol 5.6",
+          "cost": {
+            "input": 5.5,
+            "output": 33
+          }
+        },
+        "automatiq-openai/openai-terra-5-6": {
+          "name": "Terra 5.6",
+          "cost": {
+            "input": 2.2,
+            "output": 13.2
+          }
+        },
+        "automatiq-xai/XAI-grok-4-6": {
+          "name": "Grok 4.6",
+          "cost": {
+            "input": 2.0,
+            "output": 6.0
+          },
+          "variants": {
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "medium": {
+              "reasoningEffort": "medium"
+            },
+            "low": {
+              "reasoningEffort": "low"
+            }
+          }
+        },
+        "automatiq-prod-datateam/grok-4.5": {
+          "name": "Grok 4.5",
+          "cost": {
+            "input": 2.0,
+            "output": 6.0
+          },
+          "variants": {
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "medium": {
+              "reasoningEffort": "medium"
+            },
+            "low": {
+              "reasoningEffort": "low"
+            }
+          }
+        }
+      }
+    },
     "atlas-spark": {
       "npm": "@ai-sdk/openai-compatible",
       "name": "Atlas Spark (sparkrun, DGX Spark)",
       "options": {
-        "baseURL": "http://127.0.0.1:8888/v1"
+        "baseURL": "https://hooray-engine1.tail5e55e1.ts.net/v1"
       },
       "models": {
         "@atlas/qwen3.6-35b-a3b-fp8-mtp": {
@@ -55,6 +147,13 @@
           "name": "Qwen3.6-27B NVFP4 — lighter dense (just -g atlas dense-nvfp4)",
           "limit": {
             "context": 262144,
+            "output": 32768
+          }
+        },
+        "qwen3.8-27b-bf16": {
+          "name": "Qwen3.8-27B BF16 — max quality, DGX Spark only (just -g qwen38 dense-bf16)",
+          "limit": {
+            "context": 200000,
             "output": 32768
           }
         }
@@ -125,13 +224,6 @@
         },
         "qwen3.8-27b-q4": {
           "name": "Qwen3.8-27B UD-Q4_K_XL (just -g qwen38 serve / just -g rtx5090 qwen38)",
-          "limit": {
-            "context": 200000,
-            "output": 32768
-          }
-        },
-        "qwen3.8-27b-bf16": {
-          "name": "Qwen3.8-27B BF16 — max quality, DGX Spark only (just -g qwen38 dense-bf16)",
           "limit": {
             "context": 200000,
             "output": 32768

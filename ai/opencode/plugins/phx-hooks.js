@@ -3,13 +3,26 @@
 // Also fires "just lint" (credo) after Elixir file edits when justfile exists.
 
 import { spawn } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import { join, extname } from "node:path";
 import os from "node:os";
 
-const PHX_PLUGIN_ROOT =
-  os.homedir() +
-  "/.claude/plugins/cache/oliver-kriska/elixir-phoenix/3.0.0";
+function resolvePhxPluginRoot() {
+  const base =
+    os.homedir() + "/.claude/plugins/cache/oliver-kriska/elixir-phoenix";
+  try {
+    const versions = readdirSync(base)
+      .filter((d) => /^\d+\.\d+\.\d+$/.test(d))
+      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+    for (let i = versions.length - 1; i >= 0; i--) {
+      const root = join(base, versions[i]);
+      if (existsSync(join(root, "hooks/scripts/freeze-gate.sh"))) return root;
+    }
+  } catch {}
+  return join(base, "3.0.1");
+}
+
+const PHX_PLUGIN_ROOT = resolvePhxPluginRoot();
 const SCRIPTS = PHX_PLUGIN_ROOT + "/hooks/scripts";
 
 const ELIXIR_EXTS = new Set([".ex", ".exs", ".heex", ".eex", ".leex"]);
