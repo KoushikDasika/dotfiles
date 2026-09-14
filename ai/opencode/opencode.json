@@ -9,6 +9,36 @@
       "type": "local",
       "command": ["mempalace-mcp"],
       "enabled": true
+    },
+    "atlassian": {
+      "url": "https://gateway.truefoundry.ai/automatiq/mcp/atlassian/server",
+      "type": "remote",
+      "enabled": true,
+      "timeout": 60000
+    },
+    "fellow": {
+      "url": "https://gateway.truefoundry.ai/automatiq/mcp/fellow/server",
+      "type": "remote",
+      "enabled": true,
+      "timeout": 60000
+    },
+    "slack": {
+      "url": "https://gateway.truefoundry.ai/automatiq/mcp/slack/server",
+      "type": "remote",
+      "enabled": true,
+      "timeout": 60000
+    },
+    "posthog": {
+      "url": "https://gateway.truefoundry.ai/automatiq/mcp/posthog/server",
+      "type": "remote",
+      "enabled": false,
+      "timeout": 60000
+    },
+    "b2b": {
+      "url": "https://gateway.truefoundry.ai/automatiq/mcp/b2b-mcp/server",
+      "type": "remote",
+      "enabled": true,
+      "timeout": 60000
     }
   },
   "skills": {
@@ -79,24 +109,6 @@
         },
         "automatiq-xai/XAI-grok-4-6": {
           "name": "Grok 4.6",
-          "cost": {
-            "input": 2.0,
-            "output": 6.0
-          },
-          "variants": {
-            "high": {
-              "reasoningEffort": "high"
-            },
-            "medium": {
-              "reasoningEffort": "medium"
-            },
-            "low": {
-              "reasoningEffort": "low"
-            }
-          }
-        },
-        "automatiq-prod-datateam/grok-4.5": {
-          "name": "Grok 4.5",
           "cost": {
             "input": 2.0,
             "output": 6.0
