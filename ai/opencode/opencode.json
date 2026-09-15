@@ -34,8 +34,26 @@
       "enabled": false,
       "timeout": 60000
     },
+    "postman": {
+      "url": "https://gateway.truefoundry.ai/automatiq/mcp/postman/server",
+      "type": "remote",
+      "enabled": false,
+      "timeout": 60000
+    },
     "b2b": {
       "url": "https://gateway.truefoundry.ai/automatiq/mcp/b2b-mcp/server",
+      "type": "remote",
+      "enabled": true,
+      "timeout": 60000
+    },
+    "google-drive": {
+      "url": "https://gateway.truefoundry.ai/automatiq/mcp/google-drive/server",
+      "type": "remote",
+      "enabled": false,
+      "timeout": 60000
+    },
+    "datadog": {
+      "url": "https://mcp.datadoghq.com/v1/mcp?toolsets=core&omit_tools=search_datadog_logs,analyze_datadog_logs,create_datadog_notebook,edit_datadog_notebook,upsert_datadog_dashboard",
       "type": "remote",
       "enabled": true,
       "timeout": 60000
